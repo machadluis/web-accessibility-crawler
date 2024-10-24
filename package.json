@@ -1,6 +1,6 @@
 {
   "name": "web-accessibility-crawler",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A web accessibility testing crawler using Puppeteer and Axe.",
   "main": "src/index.js",
   "scripts": {
