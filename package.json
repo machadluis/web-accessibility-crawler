@@ -1,0 +1,33 @@
+{
+  "name": "web-accessibility-crawler",
+  "version": "1.0.0",
+  "description": "A web accessibility testing crawler using Puppeteer and Axe.",
+  "main": "src/index.js",
+  "scripts": {
+    "postinstall": "node postinstall.js",
+    "preuninstall": "node preuninstall.js",
+    "run-accessibility-test": "node src/index.js"
+  },
+  "keywords": [
+    "accessibility",
+    "webcrawler",
+    "puppeteer"
+  ],
+  "contributors": [
+    "Luís Machado",
+    "Margarida Semedo"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@axe-core/puppeteer": "^4.10.0",
+    "puppeteer": "^23.1.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/machadluis/web-accessibility-crawler.git"
+  },
+  "bugs": {
+    "url": "https://github.com/machadluis/web-accessibility-crawler/issues"
+  },
+  "homepage": "https://github.com/machadluis/web-accessibility-crawler#readme"
+}

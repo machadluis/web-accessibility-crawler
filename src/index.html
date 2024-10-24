@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Accessibility Test Results</title>
+    <style>
+      /* CSS styles remain the same */
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #2c2c2c;
+        color: #ccc;
+        margin: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: auto;
+        padding: 20px;
+        background-color: #333;
+        border: 1px solid #444;
+        border-radius: 5px;
+      }
+
+      .header,
+      .section-header {
+        font-size: 24px;
+        background-color: #444;
+        padding: 10px;
+        color: #fff;
+        border-bottom: 2px solid #555;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .details-summary {
+        background-color: #444;
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 10px;
+      }
+
+      .details-summary div {
+        margin-right: 20px;
+        padding: 10px;
+      }
+
+      .button {
+        background-color: #555;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        border: none;
+        margin-top: 10px;
+      }
+
+      .issues-summary {
+        background-color: #444;
+        padding: 10px;
+        margin-top: 20px;
+        border-radius: 5px;
+      }
+
+      .issues-summary div {
+        margin-right: 20px;
+        padding: 5px;
+      }
+
+      .section {
+        background-color: #444;
+        padding: 10px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+      }
+
+      .section-title {
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        background-color: #555;
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .content {
+        display: none;
+        margin-top: 10px;
+      }
+
+      .violation {
+        margin-bottom: 20px;
+        background-color: #555;
+        padding: 10px;
+        border-radius: 5px;
+      }
+
+      .violation-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .node {
+        margin-left: 20px;
+        margin-bottom: 10px;
+        background-color: #666;
+        padding: 10px;
+        border-radius: 5px;
+      }
+
+      .footer {
+        margin-top: 30px;
+        padding: 10px;
+        background-color: #444;
+        border-top: 2px solid #555;
+        text-align: right;
+      }
+
+      .button-container {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .button-container .button {
+        background-color: #555;
+        color: #fff;
+        padding: 5px 10px;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        text-align: center;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="header">Accessibility Test Results</div>
+
+      <div class="details-summary">
+        <div>Test URL: <span id="test-url"></span></div>
+        <div>Total Issues: <span id="total-issues-count"></span></div>
+      </div>
+
+      <div class="issues-summary" id="issues-summary">
+        <!-- Summary of issues will be dynamically populated here -->
+      </div>
+
+      <div id="results">
+        <!-- Detailed results will be added here by JavaScript -->
+      </div>
+
+      <div class="footer">
+        <div class="button-container">
+          <button class="button" onclick="fetchResults()">Re-run Scan</button>
+          <button class="button" onclick="exportToCSV()">Export</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let fetchedData = []; // Global variable to hold fetched data
+
+      document.addEventListener('DOMContentLoaded', fetchResults);
+
+      async function fetchResults() {
+        try {
+          const response = await fetch('accessibility-results.json');
+          if (!response.ok) throw new Error('Network response was not ok.');
+          const data = await response.json();
+
+          // Store fetched data globally for export
+          fetchedData = data;
+
+          displaySummary(data);
+          displayResults(data);
+        } catch (error) {
+          console.error('Error fetching the JSON data:', error);
+        }
+      }
+
+      function displaySummary(data) {
+        const testUrl = data.length > 0 ? data[0].url : 'N/A';
+        const totalIssues = data.reduce((sum, page) => sum + page.totalViolations, 0);
+
+        document.getElementById('test-url').textContent = testUrl;
+        document.getElementById('total-issues-count').textContent = totalIssues;
+
+        const impactSummary = data.reduce(
+          (summary, page) => {
+            summary.critical += page.ruleImpact.critical || 0;
+            summary.serious += page.ruleImpact.serious || 0;
+            summary.moderate += page.ruleImpact.moderate || 0;
+            summary.minor += page.ruleImpact.minor || 0;
+            return summary;
+          },
+          { critical: 0, serious: 0, moderate: 0, minor: 0 },
+        );
+
+        const issuesSummaryContainer = document.getElementById('issues-summary');
+        issuesSummaryContainer.innerHTML = `
+                <div>Critical Issues: ${impactSummary.critical}</div>
+                <div>Serious Issues: ${impactSummary.serious}</div>
+                <div>Moderate/Mild Issues: ${impactSummary.moderate}</div>
+                <div>Minor Issues: ${impactSummary.minor}</div>
+            `;
+      }
+
+      function toggleContent(event) {
+        const content = event.currentTarget.nextElementSibling;
+        content.style.display = content.style.display === 'none' ? 'block' : 'none';
+      }
+
+      function displayResults(data) {
+        const resultsContainer = document.getElementById('results');
+        resultsContainer.innerHTML = ''; // Clear previous results
+
+        data.forEach((page) => {
+          const section = document.createElement('div');
+          section.className = 'section';
+
+          const header = document.createElement('div');
+          header.className = 'section-title';
+          header.addEventListener('click', toggleContent);
+          header.innerHTML = `${page.url} - ${page.totalViolations} Violations`;
+
+          section.appendChild(header);
+
+          const content = document.createElement('div');
+          content.className = 'content';
+
+          page.violations.forEach((violation) => {
+            const violationDiv = document.createElement('div');
+            violationDiv.className = 'violation';
+
+            const violationHeader = document.createElement('div');
+            violationHeader.className = 'violation-header';
+            violationHeader.innerHTML = `
+                        <strong>Violation:</strong> ${violation.id} (${violation.impact || 'impact not specified'})
+                    `;
+            violationDiv.appendChild(violationHeader);
+
+            const description = document.createElement('div');
+            description.innerHTML = `<strong>Description:</strong> ${violation.description}`;
+            violationDiv.appendChild(description);
+
+            const help = document.createElement('div');
+            help.innerHTML = `<strong>Help:</strong> ${violation.help}`;
+            violationDiv.appendChild(help);
+
+            const helpUrl = document.createElement('div');
+            helpUrl.innerHTML = `<strong>Help URL:</strong> <a href="${violation.helpUrl}" target="_blank">${violation.helpUrl}</a>`;
+            violationDiv.appendChild(helpUrl);
+
+            const wcagReference = document.createElement('div');
+            wcagReference.innerHTML = `<strong>WCAG Reference:</strong> ${violation.tags ? violation.tags.join(', ') : 'N/A'}`;
+            violationDiv.appendChild(wcagReference);
+
+            content.appendChild(violationDiv);
+
+            violation.nodes.forEach((node) => {
+              const nodeDiv = document.createElement('div');
+              nodeDiv.className = 'node';
+              nodeDiv.innerHTML = `
+                            Element: ${node.target}<br>
+                            HTML snippet: <pre class="code-block">${node.html}</pre><br>
+                            Failure Summary: ${node.failureSummary ? node.failureSummary : 'N/A'}<br>
+                            XPath: ${node.xpath ? node.xpath : 'N/A'}
+                        `;
+              content.appendChild(nodeDiv);
+            });
+          });
+
+          section.appendChild(content);
+          resultsContainer.appendChild(section);
+        });
+      }
+
+      function createCSVRow(data) {
+        return data.map((item) => `"${item}"`).join(',') + '\n';
+      }
+
+      function createPageCSVRows(page) {
+        let rows = '';
+        if (page.violations.length === 0) {
+          rows += createCSVRow([
+            page.url,
+            page.relativePath,
+            page.totalViolations,
+            'N/A',
+            'N/A',
+            'N/A',
+            'N/A',
+            'N/A',
+            'N/A',
+            'N/A',
+            'N/A',
+            'N/A',
+            'N/A',
+          ]);
+        } else {
+          page.violations.forEach((violation) => {
+            violation.nodes.forEach((node) => {
+              rows += createCSVRow([
+                page.url,
+                page.relativePath,
+                page.totalViolations,
+                violation.id,
+                violation.impact,
+                violation.description,
+                violation.help,
+                violation.helpUrl,
+                violation.tags ? violation.tags.join(' | ') : 'N/A',
+                node.target,
+                node.html.replace(/(?:\r\n|\r|\n)/g, ' '), // Remove line breaks for CSV
+                node.failureSummary || 'N/A',
+                node.xpath || 'N/A',
+              ]);
+            });
+          });
+        }
+        return rows;
+      }
+
+      function exportToCSV() {
+        if (!fetchedData.length) {
+          console.error('No data to export.');
+          return;
+        }
+
+        let csvContent = 'data:text/csv;charset=utf-8,';
+
+        // 1. Overview Section
+        csvContent += 'Overview\n';
+        const reportDate = new Date().toISOString();
+        const totalViolations = fetchedData.reduce((sum, page) => sum + page.totalViolations, 0);
+        csvContent += `Report Date:,${reportDate}\n`;
+        csvContent += `Total Violations:,${totalViolations}\n\n`;
+
+        // Page-wise Summary
+        csvContent += 'URL,Relative Path,Total Violations\n';
+        fetchedData.forEach((page) => {
+          csvContent += createCSVRow([page.url, page.relativePath, page.totalViolations]);
+        });
+        csvContent += '\n\n'; // Add space before the next section
+
+        // 2. Issues Per WCAG Level Section
+        csvContent += 'Issues Per WCAG Level\n';
+        csvContent += 'URL,WCAG Level,Impact,Total Violations\n';
+
+        fetchedData.forEach((page) => {
+          page.violations.forEach((violation) => {
+            const wcagLevel = violation.tags.includes('wcag2a') ? 'WCAG 2.0 A' :
+              violation.tags.includes('wcag2aa') ? 'WCAG 2.0 AA' :
+                violation.tags.includes('wcag21aa') ? 'WCAG 2.1 AA' : 'N/A';
+            csvContent += createCSVRow([
+              page.url,
+              wcagLevel,
+              violation.impact,
+              page.totalViolations,
+            ]);
+          });
+        });
+        csvContent += '\n\n'; // Add space before the next section
+
+        // 3. Detailed Results Section
+        csvContent += 'Detailed Results\n';
+        csvContent += 'URL,Relative Path,WCAG Level,Impact,Violation ID,Description,Help,Help URL,Element,XPath,Failure Summary,HTML Snippet\n';
+
+        fetchedData.forEach((page) => {
+          page.violations.forEach((violation) => {
+            const wcagLevel = violation.tags.includes('wcag2a') ? 'WCAG 2.0 A' :
+              violation.tags.includes('wcag2aa') ? 'WCAG 2.0 AA' :
+                violation.tags.includes('wcag21aa') ? 'WCAG 2.1 AA' : 'N/A';
+
+            violation.nodes.forEach((node) => {
+              const formattedHtmlSnippet = node.html.replace(/(?:\r\n|\r|\n)/g, ' ').replace(/"/g, '""');
+              csvContent += createCSVRow([
+                page.url,
+                page.relativePath,
+                wcagLevel,
+                violation.impact,
+                violation.id,
+                violation.description,
+                violation.help,
+                violation.helpUrl,
+                node.target,
+                node.xpath || 'N/A',
+                node.failureSummary || 'N/A',
+                formattedHtmlSnippet
+              ]);
+            });
+          });
+        });
+
+        // Create the download link and trigger the download
+        const encodedUri = encodeURI(csvContent);
+        const downloadLink = document.createElement('a');
+        downloadLink.setAttribute('href', encodedUri);
+        downloadLink.setAttribute('download', 'accessibility_results.csv');
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+      }
+
+      // Utility function to create CSV row
+      function createCSVRow(data) {
+        return data.map((item) => `"${item}"`).join(',') + '\n';
+      }
+    </script>
+  </body>
+</html>
