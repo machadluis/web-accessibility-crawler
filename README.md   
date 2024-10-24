@@ -34,7 +34,7 @@ Ensure your server is running. If you're running a local server, make sure to sp
 
 ### Configuration File
 
-Before running the tool, configure the URLs you want to test by creating a `webAccessibility-config.json` file in the project root. Define the base URL to match your server's address, ensuring that the host and port are set correctly. You can customize the URLs to test as follows:
+Before running the tool, configure the URLs you want to test by creating a `webAccessibility-config.json` file in the project root. Define the base URL to match your server's address, ensuring that the host and port are set correctly. Customize the URLs as follows:
 
 ```json
 {
@@ -50,13 +50,13 @@ Before running the tool, configure the URLs you want to test by creating a `webA
 
 ## Running the Accessibility Crawler
 
-You can run the crawler using the following npm script:
+Run the crawler using the following npm script:
 
 ```bash
 npm run run-accessibility-test
 ```
 
-This command initiates Puppeteer, visits the pages specified in the configuration file, and analyzes them for accessibility issues using axe-core. The results are saved in the `accessibility-results` folder as `accessibility-results.json`.
+This command initiates Puppeteer, visits the pages specified in the configuration file, and analyzes them for accessibility issues using axe-core. Results are saved in the `accessibility-results` folder as `accessibility-results.json`.
 
 ## Example Output
 
@@ -66,7 +66,7 @@ The crawler generates a report in JSON format. Each entry in the report includes
 - **Relative Path**: The relative URL path as defined in the configuration.
 - **Total Violations**: The number of accessibility violations found.
 - **WCAG Compliance**: The breakdown of violations by WCAG level (2.0 A, 2.0 AA, 2.1 AA).
-- **Rule Impact**: Violations are categorized by severity: minor, moderate, serious, critical.
+- **Rule Impact**: Violations categorized by severity: minor, moderate, serious, critical.
 - **Violations**: A list of specific violations found, including:
   - Violation description
   - Help URL (for more information about the issue)
@@ -74,7 +74,7 @@ The crawler generates a report in JSON format. Each entry in the report includes
   - Impact level
   - XPaths of violating elements
 
-Example JSON structure:
+Example JSON:
 
 ```json
 [
@@ -136,7 +136,6 @@ The project relies on the following npm packages:
 
 - **@axe-core/puppeteer**: Integrates axe-core with Puppeteer to run accessibility checks.
 - **Puppeteer**: A headless browser automation library.
-
 
 ## License
 
