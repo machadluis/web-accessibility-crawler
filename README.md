@@ -1,5 +1,7 @@
 # Web Accessibility Crawler
 
+[![npm version](https://badge.fury.io/js/web-accessibility-crawler.svg)](https://www.npmjs.com/package/web-accessibility-crawler)
+
 ## Overview
 
 The **Web Accessibility Crawler** is a tool designed to automatically scan and test the accessibility of web pages using [Puppeteer](https://pptr.dev/) and [axe-core](https://github.com/dequelabs/axe-core) for WCAG (Web Content Accessibility Guidelines) compliance. It generates detailed reports on violations across different WCAG levels, including 2.0 A, 2.0 AA, and 2.1 AA, and provides a web interface to view and download the results in CSV format.
@@ -19,10 +21,21 @@ The **Web Accessibility Crawler** is a tool designed to automatically scan and t
 
 ## Installation
 
-1. Clone the repository and navigate to the project directory.
-2. Install dependencies:
+1. **Install from npm**:
+
+   It's recommended to install the package as a devDependency to avoid potential licensing issues within your project:
 
    ```bash
+   npm install web-accessibility-crawler --save-dev
+   ```
+
+2. **Clone the Repository**:
+
+   Alternatively, clone the repository and navigate to the project directory:
+
+   ```bash
+   git clone https://github.com/machadluis/web-accessibility-crawler.git
+   cd web-accessibility-crawler
    npm install
    ```
 
