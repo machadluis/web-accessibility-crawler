@@ -13,7 +13,6 @@ const outputDir = path.resolve(
 );
 const outputPath = path.join(outputDir, "accessibility-results.json");
 
-// Function to escape HTML for safe display
 const escapeHtml = (unsafe) => {
   return unsafe
     .replace(/&/g, "&amp;")
@@ -23,12 +22,11 @@ const escapeHtml = (unsafe) => {
     .replace(/'/g, "&#039;");
 };
 
-// Function to normalize URLs by removing query parameters and anchors
 const normalizeUrl = (link, baseUrl) => {
   try {
     const url = new URL(link, baseUrl);
-    url.search = ""; // Remove query parameters
-    url.hash = ""; // Remove anchor
+    url.search = "";
+    url.hash = "";
     return url.href;
   } catch (error) {
     console.error("Error normalizing URL:", link);
@@ -36,7 +34,6 @@ const normalizeUrl = (link, baseUrl) => {
   }
 };
 
-// Function to crawl using Puppeteer, limited to max pages
 const crawl = async (baseUrl, maxPagesToVisit = Infinity) => {
   const visited = new Set();
   const toVisit = [baseUrl];
@@ -47,6 +44,7 @@ const crawl = async (baseUrl, maxPagesToVisit = Infinity) => {
     if (!visited.has(url)) {
       visited.add(url);
       const page = await browser.newPage();
+
       try {
         console.log(`Currently visiting: ${url}`);
         await page.goto(url, { waitUntil: "networkidle0", timeout: 30000 });
@@ -81,8 +79,9 @@ const crawl = async (baseUrl, maxPagesToVisit = Infinity) => {
   return Array.from(visited);
 };
 
-// Function to log accessibility issues
 const logAccessibilityIssues = async (results, pageUrl, relativePath) => {
+  const totalCriteria = 55; // WCAG 2.0 A/AA + WCAG 2.1 A/AA criteria
+
   const violationsData = {
     url: pageUrl,
     relativePath: relativePath,
@@ -98,9 +97,11 @@ const logAccessibilityIssues = async (results, pageUrl, relativePath) => {
         violationsData.wcagCompliance[tag] += 1;
       }
     });
+
     if (violationsData.ruleImpact.hasOwnProperty(violation.impact)) {
       violationsData.ruleImpact[violation.impact] += 1;
     }
+
     violationsData.violations.push({
       id: violation.id,
       impact: violation.impact,
@@ -117,21 +118,11 @@ const logAccessibilityIssues = async (results, pageUrl, relativePath) => {
     });
   });
 
-  const totalRequirements =
-    violationsData.wcagCompliance.wcag2a +
-    violationsData.wcagCompliance.wcag2aa +
-    violationsData.wcagCompliance.wcag21a +
-    violationsData.wcagCompliance.wcag21aa;
-
   const compliancePercentage =
-    totalRequirements > 0
-      ? ((totalRequirements - violationsData.totalViolations) /
-          totalRequirements) *
-        100
-      : 100;
+    ((totalCriteria - violationsData.totalViolations) / totalCriteria) * 100;
 
-  violationsData.compliancePercentage = compliancePercentage;
-  violationsData.totalRequirements = totalRequirements;
+  violationsData.compliancePercentage = compliancePercentage.toFixed(2);
+  violationsData.totalRequirements = totalCriteria;
 
   return violationsData;
 };
@@ -152,7 +143,13 @@ const logAccessibilityIssues = async (results, pageUrl, relativePath) => {
   }
 
   let urlsToVisit;
-  // Use relativePaths if available; otherwise, crawl
+  let existingUrls = new Set();
+
+  if (fs.existsSync(outputPath)) {
+    const existingData = JSON.parse(fs.readFileSync(outputPath, "utf8"));
+    existingData.forEach((entry) => existingUrls.add(entry.url));
+  }
+
   if (config.relativePaths && config.relativePaths.length > 0) {
     urlsToVisit = config.relativePaths.map(
       (relativePath) => `${baseUrl}${relativePath}`
@@ -166,41 +163,47 @@ const logAccessibilityIssues = async (results, pageUrl, relativePath) => {
   try {
     browser = await puppeteer.launch({ headless: true });
 
-    // Ensure output directory exists
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir);
     }
 
+    let allResults = existingUrls.size
+      ? JSON.parse(fs.readFileSync(outputPath, "utf8"))
+      : [];
+
     for (const currentUrl of urlsToVisit) {
-      console.log(`Testing URL: ${currentUrl}`);
-      const relativePath = new URL(currentUrl).pathname;
-      const page = await browser.newPage();
-      await page.setBypassCSP(true);
-      await page.goto(currentUrl, { waitUntil: "networkidle0" });
-      const results = await new AxePuppeteer(page).analyze();
-      const violationsData = await logAccessibilityIssues(
-        results,
-        currentUrl,
-        relativePath
-      );
+      if (!existingUrls.has(currentUrl)) {
+        console.log(`Testing URL: ${currentUrl}`);
+        const relativePath = new URL(currentUrl).pathname;
+        const page = await browser.newPage();
+        await page.setBypassCSP(true);
+        await page.goto(currentUrl, { waitUntil: "networkidle0" });
 
-      // Save results after each URL is tested
-      let allResults = [];
-      if (fs.existsSync(outputPath)) {
-        allResults = JSON.parse(fs.readFileSync(outputPath, "utf8"));
+        const results = await new AxePuppeteer(page).analyze();
+        const violationsData = await logAccessibilityIssues(
+          results,
+          currentUrl,
+          relativePath
+        );
+
+        if (violationsData) {
+          allResults.push(violationsData);
+          existingUrls.add(currentUrl);
+
+          // Save results immediately after processing each URL
+          fs.writeFileSync(outputPath, JSON.stringify(allResults, null, 2));
+        }
+
+        await page.close();
+      } else {
+        console.log(`Skipping duplicate URL: ${currentUrl}`);
       }
-      allResults.push(violationsData);
-      fs.writeFileSync(outputPath, JSON.stringify(allResults, null, 2));
-
-      await page.close();
     }
 
     console.log(`Accessibility test results saved to ${outputPath}`);
   } catch (error) {
     console.error("Error during accessibility test:", error);
   } finally {
-    if (browser) {
-      await browser.close();
-    }
+    if (browser) await browser.close();
   }
 })();
