@@ -1,10 +1,10 @@
-const fs = require("fs");
-const path = require("path");
-const { execSync } = require("child_process");
+import fs from "fs";
+import path from "path";
+import { execSync } from "child_process";
 
 // Define paths
 const projectRootPath = process.env.npm_config_local_prefix || process.cwd();
-const packageRootPath = __dirname;
+const packageRootPath = path.dirname(new URL(import.meta.url).pathname);
 const packageJsonPath = path.join(projectRootPath, "package.json");
 const configFileName = "webAccessibility-config.json";
 const configFilePath = path.join(projectRootPath, configFileName);

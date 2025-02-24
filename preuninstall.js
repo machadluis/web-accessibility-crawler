@@ -1,5 +1,5 @@
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
 
 // Define paths
 const projectRootPath = process.env.npm_config_local_prefix || process.cwd();

@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Accessibility Test Results</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #1e1e1e;
+        color: #e0e0e0;
+        margin: 0;
+        padding: 20px;
+      }
+      .container {
+        max-width: 1200px;
+        margin: auto;
+        padding: 20px;
+        background-color: #2c2c2c;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      .header {
+        font-size: 24px;
+        background-color: #333;
+        padding: 15px;
+        color: #fff;
+        border-radius: 5px;
+        margin-bottom: 20px;
+      }
+      .filter-title {
+        font-size: 18px;
+        color: #ddd;
+        margin-bottom: 10px;
+        padding: 0 15px;
+      }
+      .filter-controls {
+        background-color: #333;
+        padding: 10px;
+        border-radius: 5px;
+        display: flex;
+        gap: 30px;
+        margin-bottom: 20px;
+      }
+      .filter-controls label {
+        color: #fff;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .filter-controls input[type="checkbox"] {
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #8ab4f8;
+        border-radius: 4px;
+        outline: none;
+        cursor: pointer;
+        background-color: #333;
+        transition: background-color 0.3s, border-color 0.3s;
+      }
+      .filter-controls input[type="checkbox"]:checked {
+        background-color: #8ab4f8;
+        border-color: #8ab4f8;
+      }
+      .filter-controls input[type="checkbox"]:checked::before {
+        content: "\2713";
+        display: block;
+        text-align: center;
+        color: white;
+        font-weight: bold;
+      }
+      .details-summary {
+        background-color: #333;
+        padding: 15px;
+        border-radius: 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .details-summary div {
+        background-color: #444;
+        padding: 8px 12px;
+        border-radius: 5px;
+      }
+      .issues-summary {
+        background-color: #333;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+      }
+      .section {
+        background-color: #333;
+        border-radius: 5px;
+        margin-bottom: 10px;
+      }
+      .section-title {
+        font-size: 18px;
+        font-weight: bold;
+        background-color: #444;
+        padding: 12px;
+        border-radius: 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+      }
+      .section-title span,
+      .violation-header,
+      .node {
+        font-size: 16px;
+        color: #ccc;
+      }
+      .section-title a {
+        color: #8ab4f8;
+        text-decoration: none;
+        transition: color 0.3s;
+      }
+      .section-title a:hover,
+      .violation a {
+        color: #59a6e4;
+      }
+      .content {
+        display: none;
+        padding: 10px;
+        background-color: #2c2c2c;
+        border-radius: 0 0 5px 5px;
+      }
+      .violation {
+        margin-bottom: 20px;
+        background-color: #444;
+        padding: 10px;
+        border-radius: 5px;
+      }
+      .violation-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 16px;
+        color: #eee;
+        margin-bottom: 10px;
+      }
+      .violation div,
+      .node {
+        margin-bottom: 6px;
+      }
+      .node {
+        margin-left: 20px;
+        margin-bottom: 10px;
+        background-color: #555;
+        padding: 10px;
+        border-radius: 5px;
+        color: #ddd;
+      }
+      .footer {
+        margin-top: 30px;
+        padding: 15px;
+        background-color: #333;
+        border-radius: 5px;
+        text-align: right;
+      }
+      .button-container .button {
+        background-color: #555;
+        color: #fff;
+        padding: 8px 15px;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        margin-left: 10px;
+        transition: background-color 0.3s;
+      }
+      .button-container .button:hover {
+        background-color: #777;
+      }
+      .code-block {
+        overflow-x: auto;
+        border-radius: 5px;
+        background-color: #666;
+        padding: 5px;
+        text-wrap: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">Accessibility Test Results</div>
+      <div class="filter-title">Filter Issues By Severity:</div>
+      <div class="filter-controls">
+        <label
+          ><input
+            type="checkbox"
+            class="issue-filter"
+            value="critical"
+            checked
+          />
+          Critical</label
+        >
+        <label
+          ><input
+            type="checkbox"
+            class="issue-filter"
+            value="serious"
+            checked
+          />
+          Serious</label
+        >
+        <label
+          ><input
+            type="checkbox"
+            class="issue-filter"
+            value="moderate"
+            checked
+          />
+          Moderate/Mild</label
+        >
+        <label
+          ><input type="checkbox" class="issue-filter" value="minor" checked />
+          Minor</label
+        >
+      </div>
+      <div class="details-summary">
+        <div>Test URL: <span id="test-url"></span></div>
+        <div>Total Issues: <span id="total-issues-count"></span></div>
+      </div>
+      <div class="issues-summary" id="issues-summary">
+        <!-- Summary of issues will be dynamically populated here -->
+      </div>
+      <div id="results">
+        <script>const fetchedData = [
+  {
+    "url": "https://diconium.com/de/offering/ai-transformation",
+    "relativePath": "https://diconium.com/de/offering/ai-transformation",
+    "totalViolations": 3,
+    "wcagCompliance": {
+      "wcag2a": 1,
+      "wcag2aa": 1,
+      "wcag21a": 0,
+      "wcag21aa": 0
+    },
+    "ruleImpact": {
+      "minor": 0,
+      "moderate": 1,
+      "serious": 1,
+      "critical": 1
+    },
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axe-puppeteer",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT"
+        ],
+        "nodes": [
+          {
+            "target": ".breadcrumb__item__current",
+            "html": "&lt;p class=&quot;breadcrumb__item__current&quot;&gt;AI transformation&lt;/p&gt;",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.28 (foreground color: #ff5000, background color: #ffffff, font size: 13.5pt (18px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "xpath": "N/A"
+          },
+          {
+            "target": "h2 > span > span",
+            "html": "&lt;span style=&quot;color: #ff5000;&quot;&gt;CAPABILITIES&lt;/span&gt;",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.98 (foreground color: #ff5000, background color: #f4f4f4, font size: 26.3pt (35px), font weight: bold). Expected contrast ratio of 3:1",
+            "xpath": "N/A"
+          }
+        ]
+      },
+      {
+        "id": "heading-order",
+        "impact": "moderate",
+        "description": "Ensure the order of headings is semantically correct",
+        "help": "Heading levels should only increase by one",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/heading-order?application=axe-puppeteer",
+        "tags": [
+          "cat.semantics",
+          "best-practice"
+        ],
+        "nodes": [
+          {
+            "target": "h4",
+            "html": "&lt;h4&gt;",
+            "failureSummary": "Fix any of the following:\n  Heading order invalid",
+            "xpath": "N/A"
+          },
+          {
+            "target": ".info-banner__content__inner > h5",
+            "html": "&lt;h5&gt;",
+            "failureSummary": "Fix any of the following:\n  Heading order invalid",
+            "xpath": "N/A"
+          }
+        ]
+      },
+      {
+        "id": "select-name",
+        "impact": "critical",
+        "description": "Ensure select element has an accessible name",
+        "help": "Select element must have an accessible name",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/select-name?application=axe-puppeteer",
+        "tags": [
+          "cat.forms",
+          "wcag2a",
+          "wcag412",
+          "section508",
+          "section508.22.n",
+          "TTv5",
+          "TT5.c",
+          "EN-301-549",
+          "EN-9.4.1.2",
+          "ACT"
+        ],
+        "nodes": [
+          {
+            "target": "select",
+            "html": "&lt;select class=&quot;tabber__tab-select no-248871499&quot;&gt;",
+            "failureSummary": "Fix any of the following:\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\"",
+            "xpath": "N/A"
+          }
+        ]
+      }
+    ],
+    "compliancePercentage": -50,
+    "totalRequirements": 2
+  },
+  {
+    "url": "https://diconium.com/de/offering",
+    "relativePath": "https://diconium.com/de/offering",
+    "totalViolations": 1,
+    "wcagCompliance": {
+      "wcag2a": 0,
+      "wcag2aa": 0,
+      "wcag21a": 0,
+      "wcag21aa": 0
+    },
+    "ruleImpact": {
+      "minor": 0,
+      "moderate": 1,
+      "serious": 0,
+      "critical": 0
+    },
+    "violations": [
+      {
+        "id": "heading-order",
+        "impact": "moderate",
+        "description": "Ensure the order of headings is semantically correct",
+        "help": "Heading levels should only increase by one",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/heading-order?application=axe-puppeteer",
+        "tags": [
+          "cat.semantics",
+          "best-practice"
+        ],
+        "nodes": [
+          {
+            "target": "h5",
+            "html": "&lt;h5&gt;Unser flexibles Modell ermöglicht schnelle und kosteneffiziente Ergebnisse, unabhängig von der Komplexität oder dem Umfang des Projekts.&lt;/h5&gt;",
+            "failureSummary": "Fix any of the following:\n  Heading order invalid",
+            "xpath": "N/A"
+          }
+        ]
+      }
+    ],
+    "compliancePercentage": 100,
+    "totalRequirements": 0
+  },
+  {
+    "url": "https://diconium.com/de/offering/software-defined-products",
+    "relativePath": "https://diconium.com/de/offering/software-defined-products",
+    "totalViolations": 3,
+    "wcagCompliance": {
+      "wcag2a": 1,
+      "wcag2aa": 1,
+      "wcag21a": 0,
+      "wcag21aa": 0
+    },
+    "ruleImpact": {
+      "minor": 0,
+      "moderate": 1,
+      "serious": 1,
+      "critical": 1
+    },
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axe-puppeteer",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT"
+        ],
+        "nodes": [
+          {
+            "target": ".breadcrumb__item__current",
+            "html": "&lt;p class=&quot;breadcrumb__item__current&quot;&gt;Software defined products&lt;/p&gt;",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.28 (foreground color: #ff5000, background color: #ffffff, font size: 13.5pt (18px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "xpath": "N/A"
+          },
+          {
+            "target": "h2 > span > span",
+            "html": "&lt;span style=&quot;color: #ff5000;&quot;&gt;CAPABILITIES&lt;/span&gt;",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.98 (foreground color: #ff5000, background color: #f4f4f4, font size: 26.3pt (35px), font weight: bold). Expected contrast ratio of 3:1",
+            "xpath": "N/A"
+          }
+        ]
+      },
+      {
+        "id": "heading-order",
+        "impact": "moderate",
+        "description": "Ensure the order of headings is semantically correct",
+        "help": "Heading levels should only increase by one",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/heading-order?application=axe-puppeteer",
+        "tags": [
+          "cat.semantics",
+          "best-practice"
+        ],
+        "nodes": [
+          {
+            "target": "h4",
+            "html": "&lt;h4 style=&quot;font-size: 18px;&quot;&gt;",
+            "failureSummary": "Fix any of the following:\n  Heading order invalid",
+            "xpath": "N/A"
+          },
+          {
+            "target": ".info-banner__content__inner > h5",
+            "html": "&lt;h5&gt;",
+            "failureSummary": "Fix any of the following:\n  Heading order invalid",
+            "xpath": "N/A"
+          }
+        ]
+      },
+      {
+        "id": "select-name",
+        "impact": "critical",
+        "description": "Ensure select element has an accessible name",
+        "help": "Select element must have an accessible name",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/select-name?application=axe-puppeteer",
+        "tags": [
+          "cat.forms",
+          "wcag2a",
+          "wcag412",
+          "section508",
+          "section508.22.n",
+          "TTv5",
+          "TT5.c",
+          "EN-301-549",
+          "EN-9.4.1.2",
+          "ACT"
+        ],
+        "nodes": [
+          {
+            "target": "select",
+            "html": "&lt;select class=&quot;tabber__tab-select no-238907789&quot;&gt;",
+            "failureSummary": "Fix any of the following:\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\"",
+            "xpath": "N/A"
+          }
+        ]
+      }
+    ],
+    "compliancePercentage": -50,
+    "totalRequirements": 2
+  },
+  {
+    "url": "https://diconium.com/de/",
+    "relativePath": "https://diconium.com/de/",
+    "totalViolations": 3,
+    "wcagCompliance": {
+      "wcag2a": 0,
+      "wcag2aa": 1,
+      "wcag21a": 0,
+      "wcag21aa": 0
+    },
+    "ruleImpact": {
+      "minor": 1,
+      "moderate": 1,
+      "serious": 1,
+      "critical": 0
+    },
+    "violations": [
+      {
+        "id": "aria-allowed-role",
+        "impact": "minor",
+        "description": "Ensure role attribute has an appropriate value for the element",
+        "help": "ARIA role should be appropriate for the element",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/aria-allowed-role?application=axe-puppeteer",
+        "tags": [
+          "cat.aria",
+          "best-practice"
+        ],
+        "nodes": [
+          {
+            "target": "img[alt=\"bosch_logo_black\"][width=\"203\"][data-swiper-slide-index=\"5\"]:nth-child(1)",
+            "html": "&lt;img class=&quot;image-row__image image-row__image__row-2 swiper-slide swiper-slide-duplicate&quot; src=&quot;https://diconium.com/hubfs/2024%20theme%20assets/logos/bosch_logo_black.svg&quot; alt=&quot;bosch_logo_black&quot; loading=&quot;lazy&quot; width=&quot;203&quot; height=&quot;50&quot; style=&quot;max-width: 100%; height: auto; width: 100.87px; margin-right: 60px;&quot; data-swiper-slide-index=&quot;5&quot; role=&quot;group&quot; aria-label=&quot; / &quot;&gt;",
+            "failureSummary": "Fix any of the following:\n  ARIA role group is not allowed for given element",
+            "xpath": "N/A"
+          },
+          {
+            "target": "img[alt=\"Logo_Trumpf_black\"][width=\"75\"][data-swiper-slide-index=\"6\"]:nth-child(2)",
+            "html": "&lt;img class=&quot;image-row__image image-row__image__row-2 swiper-slide swiper-slide-duplicate&quot; src=&quot;https://diconium.com/hubfs/2024%20theme%20assets/logos/Logo_Trumpf_black.svg&quot; alt=&quot;Logo_Trumpf_black&quot; loading=&quot;lazy&quot; width=&quot;75&quot; height=&quot;75&quot; style=&quot;max-width: 100%; height: auto; width: 100.87px; margin-right: 60px;&quot; data-swiper-slide-index=&quot;6&quot; role=&quot;group&quot; aria-label=&quot; / &quot;&gt;",
+            "failureSummary": "Fix any of the following:\n  ARIA role group is not allowed for given element",
+            "xpath": "N/A"
+          },
+          {
+            "target": "img[alt=\"Bechtle_Landscape_sRGB_Black\"][width=\"284\"][height=\"56\"]:nth-child(3)",
+            "html": "&lt;img class=&quot;image-row__image image-row__image__row-2 swiper-slide swiper-slide-duplicate&quot; src=&quot;https://diconium.com/hubfs/2024%20theme%20assets/logos/Bechtle_Landscape_sRGB_Black.svg&quot; alt=&quot;Bechtle_Landscape_sRGB_Black&quot; loading=&quot;lazy&quot; width=&quot;284&quot; height=&quot;56&quot; style=&quot;max-width: 100%; height: auto; width: 100.87px; margin-right: 60px;&quot; data-swiper-slide-index=&quot;7&quot; role=&quot;group&quot; aria-label=&quot; / &quot;&gt;",
+            "failureSummary": "Fix any of the following:\n  ARIA role group is not allowed for given element",
+            "xpath": "N/A"
+          },
+          {
+            "target": "img[alt=\"kodak_black\"][width=\"300\"][data-swiper-slide-index=\"8\"]:nth-child(4)",
+            "html": "&lt;img class=&quot;image-row__image image-row__image__row-2 swiper-slide swiper-slide-duplicate&quot; src=&quot;https://diconium.com/hubfs/2024%20theme%20assets/logos/kodak_black.svg&quot; alt=&quot;kodak_black&quot; loading=&quot;lazy&quot; width=&quot;300&quot; height=&quot;50&quot; style=&quot;max-width: 100%; height: auto; width: 100.87px; margin-right: 60px;&quot; data-swiper-slide-index=&quot;8&quot; role=&quot;group&quot; aria-label=&quot; / &quot;&gt;",
+            "failureSummary": "Fix any of the following:\n  ARIA role group is not allowed for given element",
+            "xpath": "N/A"
+          },
+          {
+            "target": "img[alt=\"audi_black\"][width=\"141\"][data-swiper-slide-index=\"9\"]:nth-child(5)",
+            "html": "&lt;img class=&quot;image-row__image image-row__image__row-2 swiper-slide swiper-slide-duplicate&quot; src=&quot;https://diconium.com/hubfs/2024%20theme%20assets/logos/audi_black.svg&quot; alt=&quot;audi_black&quot; loading=&quot;lazy&quot; width=&quot;141&quot; height=&quot;50&quot; style=&quot;max-width: 100%; height: auto; width: 100.87px; margin-right: 60px;&quot; data-swiper-slide-index=&quot;9&quot; role=&quot;group&quot; aria-label=&quot; / &quot;&gt;",
+            "failureSummary": "Fix any of the following:\n  ARIA role group is not allowed for given element",
+            "xpath": "N/A"
+          },
+          {
+            "target": ".swiper-slide-prev",
+            "html": "&lt;img class=&quot;image-row__image image-row__image__row-1 swiper-slide swiper-slide-prev&quot; alt=&quot;LogoStihl&quot; loading=&quot;lazy&quot; width=&quot;172&quot; height=&quot;36&quot; style=&quot;max-width: 100%; height: auto; width: 100.87px; margin-right: 60px;&quot; srcset=&quot;https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoStihl.png?width=86&amp;amp;height=18&amp;amp;name=LogoStihl.png 86w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoStihl.png?width=172&amp;amp;height=36&amp;amp;name=LogoStihl.png 172w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoStihl.png?width=258&amp;amp;height=54&amp;amp;name=LogoStihl.png 258w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoStihl.png?width=344&amp;amp;height=72&amp;amp;name=LogoStihl.png 344w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoStihl.png?width=430&amp;amp;height=90&amp;amp;name=LogoStihl.png 430w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoStihl.png?width=516&amp;amp;height=108&amp;amp;name=LogoStihl.png 516w&quot; sizes=&quot;(max-width: 172px) 100vw, 172px&quot; src=&quot;https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoStihl.png?width=172&amp;amp;height=36&amp;amp;name=LogoStihl.png&quot; data-swiper-slide-index=&quot;0&quot; role=&quot;group&quot; aria-label=&quot; / &quot;&gt;",
+            "failureSummary": "Fix any of the following:\n  ARIA role group is not allowed for given element",
+            "xpath": "N/A"
+          },
+          {
+            "target": ".swiper-slide-active[alt=\"VW logo\"][width=\"76\"]",
+            "html": "&lt;img class=&quot;image-row__image image-row__image__row-1 swiper-slide swiper-slide-active&quot; alt=&quot;VW logo&quot; loading=&quot;lazy&quot; width=&quot;76&quot; height=&quot;75&quot; style=&quot;max-width: 100%; height: auto; width: 100.87px; margin-right: 60px;&quot; srcset=&quot;https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/VW%20logo.png?width=38&amp;amp;height=38&amp;amp;name=VW%20logo.png 38w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/VW%20logo.png?width=76&amp;amp;height=75&amp;amp;name=VW%20logo.png 76w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/VW%20logo.png?width=114&amp;amp;height=113&amp;amp;name=VW%20logo.png 114w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/VW%20logo.png?width=152&amp;amp;height=150&amp;amp;name=VW%20logo.png 152w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/VW%20logo.png?width=190&amp;amp;height=188&amp;amp;name=VW%20logo.png 190w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/VW%20logo.png?width=228&amp;amp;height=225&amp;amp;name=VW%20logo.png 228w&quot; sizes=&quot;(max-width: 76px) 100vw, 76px&quot; src=&quot;https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/VW%20logo.png?width=76&amp;amp;height=75&amp;amp;name=VW%20logo.png&quot; data-swiper-slide-index=&quot;1&quot; role=&quot;group&quot; aria-label=&quot; / &quot;&gt;",
+            "failureSummary": "Fix any of the following:\n  ARIA role group is not allowed for given element",
+            "xpath": "N/A"
+          },
+          {
+            "target": ".swiper-slide-next[alt=\"LogoHäfele\"][width=\"247\"]",
+            "html": "&lt;img class=&quot;image-row__image image-row__image__row-1 swiper-slide swiper-slide-next&quot; alt=&quot;LogoHäfele&quot; loading=&quot;lazy&quot; width=&quot;247&quot; height=&quot;36&quot; style=&quot;max-width: 100%; height: auto; width: 100.87px; margin-right: 60px;&quot; srcset=&quot;https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoH%C3%A4fele.png?width=124&amp;amp;height=18&amp;amp;name=LogoH%C3%A4fele.png 124w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoH%C3%A4fele.png?width=247&amp;amp;height=36&amp;amp;name=LogoH%C3%A4fele.png 247w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoH%C3%A4fele.png?width=371&amp;amp;height=54&amp;amp;name=LogoH%C3%A4fele.png 371w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoH%C3%A4fele.png?width=494&amp;amp;height=72&amp;amp;name=LogoH%C3%A4fele.png 494w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoH%C3%A4fele.png?width=618&amp;amp;height=90&amp;amp;name=LogoH%C3%A4fele.png 618w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoH%C3%A4fele.png?width=741&amp;amp;height=108&amp;amp;name=LogoH%C3%A4fele.png 741w&quot; sizes=&quot;(max-width: 247px) 100vw, 247px&quot; src=&quot;https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoH%C3%A4fele.png?width=247&amp;amp;height=36&amp;amp;name=LogoH%C3%A4fele.png&quot; data-swiper-slide-index=&quot;2&quot; role=&quot;group&quot; aria-label=&quot; / &quot;&gt;",
+            "failureSummary": "Fix any of the following:\n  ARIA role group is not allowed for given element",
+            "xpath": "N/A"
+          },
+          {
+            "target": "img[alt=\"LogoPorsche\"][width=\"366\"][height=\"18\"]:nth-child(9)",
+            "html": "&lt;img class=&quot;image-row__image image-row__image__row-1 swiper-slide&quot; alt=&quot;LogoPorsche&quot; loading=&quot;lazy&quot; width=&quot;366&quot; height=&quot;18&quot; style=&quot;max-width: 100%; height: auto; width: 100.87px; margin-right: 60px;&quot; srcset=&quot;https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoPorsche.png?width=183&amp;amp;height=9&amp;amp;name=LogoPorsche.png 183w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoPorsche.png?width=366&amp;amp;height=18&amp;amp;name=LogoPorsche.png 366w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoPorsche.png?width=549&amp;amp;height=27&amp;amp;name=LogoPorsche.png 549w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoPorsche.png?width=732&amp;amp;height=36&amp;amp;name=LogoPorsche.png 732w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoPorsche.png?width=915&amp;amp;height=45&amp;amp;name=LogoPorsche.png 915w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoPorsche.png?width=1098&amp;amp;height=54&amp;amp;name=LogoPorsche.png 1098w&quot; sizes=&quot;(max-width: 366px) 100vw, 366px&quot; src=&quot;https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoPorsche.png?width=366&amp;amp;height=18&amp;amp;name=LogoPorsche.png&quot; data-swiper-slide-index=&quot;3&quot; role=&quot;group&quot; aria-label=&quot; / &quot;&gt;",
+            "failureSummary": "Fix any of the following:\n  ARIA role group is not allowed for given element",
+            "xpath": "N/A"
+          },
+          {
+            "target": "img[alt=\"LogoSick\"][width=\"112\"][data-swiper-slide-index=\"4\"]:nth-child(10)",
+            "html": "&lt;img class=&quot;image-row__image image-row__image__row-1 swiper-slide&quot; alt=&quot;LogoSick&quot; loading=&quot;lazy&quot; width=&quot;112&quot; height=&quot;36&quot; style=&quot;max-width: 100%; height: auto; width: 100.87px; margin-right: 60px;&quot; srcset=&quot;https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoSick.png?width=56&amp;amp;height=18&amp;amp;name=LogoSick.png 56w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoSick.png?width=112&amp;amp;height=36&amp;amp;name=LogoSick.png 112w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoSick.png?width=168&amp;amp;height=54&amp;amp;name=LogoSick.png 168w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoSick.png?width=224&amp;amp;height=72&amp;amp;name=LogoSick.png 224w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoSick.png?width=280&amp;amp;height=90&amp;amp;name=LogoSick.png 280w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoSick.png?width=336&amp;amp;height=108&amp;amp;name=LogoSick.png 336w&quot; sizes=&quot;(max-width: 112px) 100vw, 112px&quot; src=&quot;https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoSick.png?width=112&amp;amp;height=36&amp;amp;name=LogoSick.png&quot; data-swiper-slide-index=&quot;4&quot; role=&quot;group&quot; aria-label=&quot; / &quot;&gt;",
+            "failureSummary": "Fix any of the following:\n  ARIA role group is not allowed for given element",
+            "xpath": "N/A"
+          },
+          {
+            "target": "img[alt=\"bosch_logo_black\"][width=\"203\"][data-swiper-slide-index=\"5\"]:nth-child(11)",
+            "html": "&lt;img class=&quot;image-row__image image-row__image__row-2 swiper-slide&quot; src=&quot;https://diconium.com/hubfs/2024%20theme%20assets/logos/bosch_logo_black.svg&quot; alt=&quot;bosch_logo_black&quot; loading=&quot;lazy&quot; width=&quot;203&quot; height=&quot;50&quot; style=&quot;max-width: 100%; height: auto; width: 100.87px; margin-right: 60px;&quot; data-swiper-slide-index=&quot;5&quot; role=&quot;group&quot; aria-label=&quot; / &quot;&gt;",
+            "failureSummary": "Fix any of the following:\n  ARIA role group is not allowed for given element",
+            "xpath": "N/A"
+          },
+          {
+            "target": "img[alt=\"Logo_Trumpf_black\"][width=\"75\"][data-swiper-slide-index=\"6\"]:nth-child(12)",
+            "html": "&lt;img class=&quot;image-row__image image-row__image__row-2 swiper-slide&quot; src=&quot;https://diconium.com/hubfs/2024%20theme%20assets/logos/Logo_Trumpf_black.svg&quot; alt=&quot;Logo_Trumpf_black&quot; loading=&quot;lazy&quot; width=&quot;75&quot; height=&quot;75&quot; style=&quot;max-width: 100%; height: auto; width: 100.87px; margin-right: 60px;&quot; data-swiper-slide-index=&quot;6&quot; role=&quot;group&quot; aria-label=&quot; / &quot;&gt;",
+            "failureSummary": "Fix any of the following:\n  ARIA role group is not allowed for given element",
+            "xpath": "N/A"
+          },
+          {
+            "target": "img[alt=\"Bechtle_Landscape_sRGB_Black\"][width=\"284\"][height=\"56\"]:nth-child(13)",
+            "html": "&lt;img class=&quot;image-row__image image-row__image__row-2 swiper-slide&quot; src=&quot;https://diconium.com/hubfs/2024%20theme%20assets/logos/Bechtle_Landscape_sRGB_Black.svg&quot; alt=&quot;Bechtle_Landscape_sRGB_Black&quot; loading=&quot;lazy&quot; width=&quot;284&quot; height=&quot;56&quot; style=&quot;max-width: 100%; height: auto; width: 100.87px; margin-right: 60px;&quot; data-swiper-slide-index=&quot;7&quot; role=&quot;group&quot; aria-label=&quot; / &quot;&gt;",
+            "failureSummary": "Fix any of the following:\n  ARIA role group is not allowed for given element",
+            "xpath": "N/A"
+          },
+          {
+            "target": "img[alt=\"kodak_black\"][width=\"300\"][data-swiper-slide-index=\"8\"]:nth-child(14)",
+            "html": "&lt;img class=&quot;image-row__image image-row__image__row-2 swiper-slide&quot; src=&quot;https://diconium.com/hubfs/2024%20theme%20assets/logos/kodak_black.svg&quot; alt=&quot;kodak_black&quot; loading=&quot;lazy&quot; width=&quot;300&quot; height=&quot;50&quot; style=&quot;max-width: 100%; height: auto; width: 100.87px; margin-right: 60px;&quot; data-swiper-slide-index=&quot;8&quot; role=&quot;group&quot; aria-label=&quot; / &quot;&gt;",
+            "failureSummary": "Fix any of the following:\n  ARIA role group is not allowed for given element",
+            "xpath": "N/A"
+          },
+          {
+            "target": "img[alt=\"audi_black\"][width=\"141\"][data-swiper-slide-index=\"9\"]:nth-child(15)",
+            "html": "&lt;img class=&quot;image-row__image image-row__image__row-2 swiper-slide&quot; src=&quot;https://diconium.com/hubfs/2024%20theme%20assets/logos/audi_black.svg&quot; alt=&quot;audi_black&quot; loading=&quot;lazy&quot; width=&quot;141&quot; height=&quot;50&quot; style=&quot;max-width: 100%; height: auto; width: 100.87px; margin-right: 60px;&quot; data-swiper-slide-index=&quot;9&quot; role=&quot;group&quot; aria-label=&quot; / &quot;&gt;",
+            "failureSummary": "Fix any of the following:\n  ARIA role group is not allowed for given element",
+            "xpath": "N/A"
+          },
+          {
+            "target": ".swiper-slide-duplicate-prev",
+            "html": "&lt;img class=&quot;image-row__image image-row__image__row-1 swiper-slide swiper-slide-duplicate swiper-slide-duplicate-prev&quot; alt=&quot;LogoStihl&quot; loading=&quot;lazy&quot; width=&quot;172&quot; height=&quot;36&quot; style=&quot;max-width: 100%; height: auto; width: 100.87px; margin-right: 60px;&quot; srcset=&quot;https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoStihl.png?width=86&amp;amp;height=18&amp;amp;name=LogoStihl.png 86w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoStihl.png?width=172&amp;amp;height=36&amp;amp;name=LogoStihl.png 172w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoStihl.png?width=258&amp;amp;height=54&amp;amp;name=LogoStihl.png 258w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoStihl.png?width=344&amp;amp;height=72&amp;amp;name=LogoStihl.png 344w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoStihl.png?width=430&amp;amp;height=90&amp;amp;name=LogoStihl.png 430w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoStihl.png?width=516&amp;amp;height=108&amp;amp;name=LogoStihl.png 516w&quot; sizes=&quot;(max-width: 172px) 100vw, 172px&quot; src=&quot;https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoStihl.png?width=172&amp;amp;height=36&amp;amp;name=LogoStihl.png&quot; data-swiper-slide-index=&quot;0&quot; role=&quot;group&quot; aria-label=&quot; / &quot;&gt;",
+            "failureSummary": "Fix any of the following:\n  ARIA role group is not allowed for given element",
+            "xpath": "N/A"
+          },
+          {
+            "target": ".swiper-slide-duplicate-active",
+            "html": "&lt;img class=&quot;image-row__image image-row__image__row-1 swiper-slide swiper-slide-duplicate swiper-slide-duplicate-active&quot; alt=&quot;VW logo&quot; loading=&quot;lazy&quot; width=&quot;76&quot; height=&quot;75&quot; style=&quot;max-width: 100%; height: auto; width: 100.87px; margin-right: 60px;&quot; srcset=&quot;https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/VW%20logo.png?width=38&amp;amp;height=38&amp;amp;name=VW%20logo.png 38w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/VW%20logo.png?width=76&amp;amp;height=75&amp;amp;name=VW%20logo.png 76w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/VW%20logo.png?width=114&amp;amp;height=113&amp;amp;name=VW%20logo.png 114w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/VW%20logo.png?width=152&amp;amp;height=150&amp;amp;name=VW%20logo.png 152w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/VW%20logo.png?width=190&amp;amp;height=188&amp;amp;name=VW%20logo.png 190w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/VW%20logo.png?width=228&amp;amp;height=225&amp;amp;name=VW%20logo.png 228w&quot; sizes=&quot;(max-width: 76px) 100vw, 76px&quot; src=&quot;https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/VW%20logo.png?width=76&amp;amp;height=75&amp;amp;name=VW%20logo.png&quot; data-swiper-slide-index=&quot;1&quot; role=&quot;group&quot; aria-label=&quot; / &quot;&gt;",
+            "failureSummary": "Fix any of the following:\n  ARIA role group is not allowed for given element",
+            "xpath": "N/A"
+          },
+          {
+            "target": ".swiper-slide-duplicate-next",
+            "html": "&lt;img class=&quot;image-row__image image-row__image__row-1 swiper-slide swiper-slide-duplicate swiper-slide-duplicate-next&quot; alt=&quot;LogoHäfele&quot; loading=&quot;lazy&quot; width=&quot;247&quot; height=&quot;36&quot; style=&quot;max-width: 100%; height: auto; width: 100.87px; margin-right: 60px;&quot; srcset=&quot;https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoH%C3%A4fele.png?width=124&amp;amp;height=18&amp;amp;name=LogoH%C3%A4fele.png 124w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoH%C3%A4fele.png?width=247&amp;amp;height=36&amp;amp;name=LogoH%C3%A4fele.png 247w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoH%C3%A4fele.png?width=371&amp;amp;height=54&amp;amp;name=LogoH%C3%A4fele.png 371w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoH%C3%A4fele.png?width=494&amp;amp;height=72&amp;amp;name=LogoH%C3%A4fele.png 494w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoH%C3%A4fele.png?width=618&amp;amp;height=90&amp;amp;name=LogoH%C3%A4fele.png 618w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoH%C3%A4fele.png?width=741&amp;amp;height=108&amp;amp;name=LogoH%C3%A4fele.png 741w&quot; sizes=&quot;(max-width: 247px) 100vw, 247px&quot; src=&quot;https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoH%C3%A4fele.png?width=247&amp;amp;height=36&amp;amp;name=LogoH%C3%A4fele.png&quot; data-swiper-slide-index=&quot;2&quot; role=&quot;group&quot; aria-label=&quot; / &quot;&gt;",
+            "failureSummary": "Fix any of the following:\n  ARIA role group is not allowed for given element",
+            "xpath": "N/A"
+          },
+          {
+            "target": "img[alt=\"LogoPorsche\"][width=\"366\"][height=\"18\"]:nth-child(19)",
+            "html": "&lt;img class=&quot;image-row__image image-row__image__row-1 swiper-slide swiper-slide-duplicate&quot; alt=&quot;LogoPorsche&quot; loading=&quot;lazy&quot; width=&quot;366&quot; height=&quot;18&quot; style=&quot;max-width: 100%; height: auto; width: 100.87px; margin-right: 60px;&quot; srcset=&quot;https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoPorsche.png?width=183&amp;amp;height=9&amp;amp;name=LogoPorsche.png 183w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoPorsche.png?width=366&amp;amp;height=18&amp;amp;name=LogoPorsche.png 366w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoPorsche.png?width=549&amp;amp;height=27&amp;amp;name=LogoPorsche.png 549w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoPorsche.png?width=732&amp;amp;height=36&amp;amp;name=LogoPorsche.png 732w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoPorsche.png?width=915&amp;amp;height=45&amp;amp;name=LogoPorsche.png 915w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoPorsche.png?width=1098&amp;amp;height=54&amp;amp;name=LogoPorsche.png 1098w&quot; sizes=&quot;(max-width: 366px) 100vw, 366px&quot; src=&quot;https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoPorsche.png?width=366&amp;amp;height=18&amp;amp;name=LogoPorsche.png&quot; data-swiper-slide-index=&quot;3&quot; role=&quot;group&quot; aria-label=&quot; / &quot;&gt;",
+            "failureSummary": "Fix any of the following:\n  ARIA role group is not allowed for given element",
+            "xpath": "N/A"
+          },
+          {
+            "target": "img[alt=\"LogoSick\"][width=\"112\"][data-swiper-slide-index=\"4\"]:nth-child(20)",
+            "html": "&lt;img class=&quot;image-row__image image-row__image__row-1 swiper-slide swiper-slide-duplicate&quot; alt=&quot;LogoSick&quot; loading=&quot;lazy&quot; width=&quot;112&quot; height=&quot;36&quot; style=&quot;max-width: 100%; height: auto; width: 100.87px; margin-right: 60px;&quot; srcset=&quot;https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoSick.png?width=56&amp;amp;height=18&amp;amp;name=LogoSick.png 56w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoSick.png?width=112&amp;amp;height=36&amp;amp;name=LogoSick.png 112w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoSick.png?width=168&amp;amp;height=54&amp;amp;name=LogoSick.png 168w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoSick.png?width=224&amp;amp;height=72&amp;amp;name=LogoSick.png 224w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoSick.png?width=280&amp;amp;height=90&amp;amp;name=LogoSick.png 280w, https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoSick.png?width=336&amp;amp;height=108&amp;amp;name=LogoSick.png 336w&quot; sizes=&quot;(max-width: 112px) 100vw, 112px&quot; src=&quot;https://24898528.fs1.hubspotusercontent-eu1.net/hub/24898528/hubfs/2024%20theme%20assets/logos/LogoSick.png?width=112&amp;amp;height=36&amp;amp;name=LogoSick.png&quot; data-swiper-slide-index=&quot;4&quot; role=&quot;group&quot; aria-label=&quot; / &quot;&gt;",
+            "failureSummary": "Fix any of the following:\n  ARIA role group is not allowed for given element",
+            "xpath": "N/A"
+          }
+        ]
+      },
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axe-puppeteer",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT"
+        ],
+        "nodes": [
+          {
+            "target": ".cta-banner__inner__bottom > .white.small.button",
+            "html": "&lt;span class=&quot;button small white&quot;&gt;\n                  Mehr über uns\n                  \n              &lt;/span&gt;",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.28 (foreground color: #ffffff, background color: #ff5000, font size: 13.5pt (18px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "xpath": "N/A"
+          },
+          {
+            "target": ".event-banner__inner__bottom > .white.small.button",
+            "html": "&lt;span class=&quot;button small white&quot;&gt;\n                  Mehr erfahren\n                  \n              &lt;/span&gt;",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.28 (foreground color: #ffffff, background color: #ff5000, font size: 13.5pt (18px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "xpath": "N/A"
+          }
+        ]
+      },
+      {
+        "id": "heading-order",
+        "impact": "moderate",
+        "description": "Ensure the order of headings is semantically correct",
+        "help": "Heading levels should only increase by one",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/heading-order?application=axe-puppeteer",
+        "tags": [
+          "cat.semantics",
+          "best-practice"
+        ],
+        "nodes": [
+          {
+            "target": ".home-hero-banner__right > h5",
+            "html": "&lt;h5&gt;diconium ist ein globales Unternehmen, spezialisiert auf&amp;nbsp;Software-Delivery-Organisationen. Wir meistern Komplexität und steigern die Wettbewerbsfähigkeit auf allen Ebenen.&lt;/h5&gt;",
+            "failureSummary": "Fix any of the following:\n  Heading order invalid",
+            "xpath": "N/A"
+          },
+          {
+            "target": ".card-feed__card__1 > .card-feed__card__inner.hover-parent > .card-feed__card__top > h4",
+            "html": "&lt;h4&gt;Trendreport: China&#039;s automotive industry&lt;/h4&gt;",
+            "failureSummary": "Fix any of the following:\n  Heading order invalid",
+            "xpath": "N/A"
+          },
+          {
+            "target": ".event-banner__inner__top > h5",
+            "html": "&lt;h5&gt;&lt;span style=&quot;color: #ffffff;&quot;&gt;&lt;span&gt;Unsere Webinare zum Jahresbeginn. Wir geben wertvolle Einblicke in die Themen Gen AI, CXM und Salesforce Agentforce.&lt;/span&gt;&lt;/span&gt;&lt;/h5&gt;",
+            "failureSummary": "Fix any of the following:\n  Heading order invalid",
+            "xpath": "N/A"
+          }
+        ]
+      }
+    ],
+    "compliancePercentage": -200,
+    "totalRequirements": 1
+  },
+  {
+    "url": "https://diconium.com/de/offering/cybersecurity-compliance",
+    "relativePath": "https://diconium.com/de/offering/cybersecurity-compliance",
+    "totalViolations": 3,
+    "wcagCompliance": {
+      "wcag2a": 1,
+      "wcag2aa": 1,
+      "wcag21a": 0,
+      "wcag21aa": 0
+    },
+    "ruleImpact": {
+      "minor": 0,
+      "moderate": 1,
+      "serious": 1,
+      "critical": 1
+    },
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axe-puppeteer",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT"
+        ],
+        "nodes": [
+          {
+            "target": ".breadcrumb__item__current",
+            "html": "&lt;p class=&quot;breadcrumb__item__current&quot;&gt;Cybersecurity &amp;amp; compliance&lt;/p&gt;",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.28 (foreground color: #ff5000, background color: #ffffff, font size: 13.5pt (18px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "xpath": "N/A"
+          },
+          {
+            "target": "h2 > span > span",
+            "html": "&lt;span style=&quot;color: #ff5000;&quot;&gt;CAPABILITIES&lt;/span&gt;",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.98 (foreground color: #ff5000, background color: #f4f4f4, font size: 26.3pt (35px), font weight: bold). Expected contrast ratio of 3:1",
+            "xpath": "N/A"
+          }
+        ]
+      },
+      {
+        "id": "heading-order",
+        "impact": "moderate",
+        "description": "Ensure the order of headings is semantically correct",
+        "help": "Heading levels should only increase by one",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/heading-order?application=axe-puppeteer",
+        "tags": [
+          "cat.semantics",
+          "best-practice"
+        ],
+        "nodes": [
+          {
+            "target": "h4",
+            "html": "&lt;h4&gt;",
+            "failureSummary": "Fix any of the following:\n  Heading order invalid",
+            "xpath": "N/A"
+          },
+          {
+            "target": ".info-banner__content__inner > h5",
+            "html": "&lt;h5&gt;",
+            "failureSummary": "Fix any of the following:\n  Heading order invalid",
+            "xpath": "N/A"
+          }
+        ]
+      },
+      {
+        "id": "select-name",
+        "impact": "critical",
+        "description": "Ensure select element has an accessible name",
+        "help": "Select element must have an accessible name",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/select-name?application=axe-puppeteer",
+        "tags": [
+          "cat.forms",
+          "wcag2a",
+          "wcag412",
+          "section508",
+          "section508.22.n",
+          "TTv5",
+          "TT5.c",
+          "EN-301-549",
+          "EN-9.4.1.2",
+          "ACT"
+        ],
+        "nodes": [
+          {
+            "target": "select",
+            "html": "&lt;select class=&quot;tabber__tab-select no-973991566&quot;&gt;",
+            "failureSummary": "Fix any of the following:\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\"",
+            "xpath": "N/A"
+          }
+        ]
+      }
+    ],
+    "compliancePercentage": -50,
+    "totalRequirements": 2
+  },
+  {
+    "url": "https://diconium.com/de/offering/digital-sales-solutions",
+    "relativePath": "https://diconium.com/de/offering/digital-sales-solutions",
+    "totalViolations": 3,
+    "wcagCompliance": {
+      "wcag2a": 1,
+      "wcag2aa": 1,
+      "wcag21a": 0,
+      "wcag21aa": 0
+    },
+    "ruleImpact": {
+      "minor": 0,
+      "moderate": 1,
+      "serious": 1,
+      "critical": 1
+    },
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axe-puppeteer",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT"
+        ],
+        "nodes": [
+          {
+            "target": ".breadcrumb__item__current",
+            "html": "&lt;p class=&quot;breadcrumb__item__current&quot;&gt;Digital sales solutions&lt;/p&gt;",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.28 (foreground color: #ff5000, background color: #ffffff, font size: 13.5pt (18px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "xpath": "N/A"
+          },
+          {
+            "target": "h2 > span > span",
+            "html": "&lt;span style=&quot;color: #ff5000;&quot;&gt;CAPABILITIES&lt;/span&gt;",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.98 (foreground color: #ff5000, background color: #f4f4f4, font size: 26.3pt (35px), font weight: bold). Expected contrast ratio of 3:1",
+            "xpath": "N/A"
+          }
+        ]
+      },
+      {
+        "id": "heading-order",
+        "impact": "moderate",
+        "description": "Ensure the order of headings is semantically correct",
+        "help": "Heading levels should only increase by one",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/heading-order?application=axe-puppeteer",
+        "tags": [
+          "cat.semantics",
+          "best-practice"
+        ],
+        "nodes": [
+          {
+            "target": "h4",
+            "html": "&lt;h4&gt;",
+            "failureSummary": "Fix any of the following:\n  Heading order invalid",
+            "xpath": "N/A"
+          },
+          {
+            "target": ".info-banner__content__inner > h5",
+            "html": "&lt;h5&gt;",
+            "failureSummary": "Fix any of the following:\n  Heading order invalid",
+            "xpath": "N/A"
+          }
+        ]
+      },
+      {
+        "id": "select-name",
+        "impact": "critical",
+        "description": "Ensure select element has an accessible name",
+        "help": "Select element must have an accessible name",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/select-name?application=axe-puppeteer",
+        "tags": [
+          "cat.forms",
+          "wcag2a",
+          "wcag412",
+          "section508",
+          "section508.22.n",
+          "TTv5",
+          "TT5.c",
+          "EN-301-549",
+          "EN-9.4.1.2",
+          "ACT"
+        ],
+        "nodes": [
+          {
+            "target": "select",
+            "html": "&lt;select class=&quot;tabber__tab-select no-70941920&quot;&gt;",
+            "failureSummary": "Fix any of the following:\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\"",
+            "xpath": "N/A"
+          }
+        ]
+      }
+    ],
+    "compliancePercentage": -50,
+    "totalRequirements": 2
+  }
+];</script>
+      </div>
+      <div class="footer">
+        <div class="button-container">
+          <button class="button" onclick="exportToCSVEnhanced()">Export</button>
+        </div>
+      </div>
+    </div>
+    <script>
+      let fetchedData = [];
+      document.addEventListener("DOMContentLoaded", () => {
+        fetchResults();
+        document
+          .querySelectorAll(".issue-filter")
+          .forEach((filter) => filter.addEventListener("change", applyFilters));
+      });
+
+      async function fetchResults() {
+        try {
+          const response = await fetch("accessibility-results.json");
+          if (!response.ok) throw new Error("Network response was not ok.");
+          const data = await response.json();
+          fetchedData = data;
+          displaySummary(data);
+          displayResults(data);
+        } catch (error) {
+          console.error("Error fetching the JSON data:", error);
+        }
+      }
+
+      function displaySummary(data) {
+        const testUrl = data.length > 0 ? data[0].url : "N/A";
+        const totalIssues = data.reduce(
+          (sum, page) => sum + page.totalViolations,
+          0
+        );
+        document.getElementById("test-url").textContent = testUrl;
+        document.getElementById("total-issues-count").textContent = totalIssues;
+        const impactSummary = data.reduce(
+          (summary, page) => {
+            summary.critical += page.ruleImpact.critical || 0;
+            summary.serious += page.ruleImpact.serious || 0;
+            summary.moderate += page.ruleImpact.moderate || 0;
+            summary.minor += page.ruleImpact.minor || 0;
+            return summary;
+          },
+          { critical: 0, serious: 0, moderate: 0, minor: 0 }
+        );
+        const issuesSummaryContainer =
+          document.getElementById("issues-summary");
+        issuesSummaryContainer.innerHTML = `
+        <div>Critical Issues: ${impactSummary.critical}</div>
+        <div>Serious Issues: ${impactSummary.serious}</div>
+        <div>Moderate/Mild Issues: ${impactSummary.moderate}</div>
+        <div>Minor Issues: ${impactSummary.minor}</div>
+    `;
+      }
+
+      function toggleContent(event) {
+        const content = event.currentTarget.nextElementSibling;
+        content.style.display =
+          content.style.display === "none" ? "block" : "none";
+      }
+
+      function displayResults(data) {
+        const resultsContainer = document.getElementById("results");
+        resultsContainer.innerHTML = "";
+        data.forEach((page, pageIndex) => {
+          const section = document.createElement("div");
+          section.className = "section";
+          const header = document.createElement("div");
+          header.className = "section-title";
+          header.addEventListener("click", toggleContent);
+          header.innerHTML = `<span>${pageIndex + 1}.</span> <a href="${
+            page.url
+          }" target="_blank">${
+            page.url
+          }</a> <span> <span class="violation-count">${
+            page.totalViolations
+          }</span> Violations</span>`;
+          section.appendChild(header);
+          const content = document.createElement("div");
+          content.className = "content";
+          page.violations.forEach((violation) => {
+            const violationDiv = document.createElement("div");
+            violationDiv.className = "violation";
+            violationDiv.setAttribute("data-impact", violation.impact);
+            const violationHeader = document.createElement("div");
+            violationHeader.className = "violation-header";
+            violationHeader.innerHTML = `<strong>Violation:</strong> ${
+              violation.id
+            } (${violation.impact || "impact not specified"})`;
+            violationDiv.appendChild(violationHeader);
+            violationDiv.innerHTML += `
+                <div><strong>Description:</strong> ${
+                  violation.description
+                }</div>
+                <div><strong>Help:</strong> ${violation.help}</div>
+                <div><strong>Help URL:</strong> <a href="${
+                  violation.helpUrl
+                }" target="_blank">${violation.helpUrl}</a></div>
+                <div><strong>WCAG Reference:</strong> ${
+                  violation.tags ? violation.tags.join(", ") : "N/A"
+                }</div>`;
+            violation.nodes.forEach((node) => {
+              const nodeDiv = document.createElement("div");
+              nodeDiv.className = "node";
+              nodeDiv.innerHTML = `
+                    <div>Element: ${node.target}</div>
+                    <div>HTML snippet: <pre class="code-block">${
+                      node.html
+                    }</pre></div>
+                    <div>Failure Summary: ${node.failureSummary || "N/A"}</div>
+                    <div>XPath: ${node.xpath || "N/A"}</div>`;
+              violationDiv.appendChild(nodeDiv);
+            });
+            content.appendChild(violationDiv);
+          });
+          section.appendChild(content);
+          resultsContainer.appendChild(section);
+        });
+        applyFilters();
+      }
+
+      function applyFilters() {
+        const selectedFilters = Array.from(
+          document.querySelectorAll(".issue-filter:checked")
+        ).map((filter) => filter.value);
+        const resultsContainer = document.getElementById("results");
+        const sections = resultsContainer.getElementsByClassName("section");
+        Array.from(sections).forEach((section) => {
+          const violations = section.getElementsByClassName("violation");
+          let visibleViolationsCount = 0;
+          Array.from(violations).forEach((violation) => {
+            const impact = violation.getAttribute("data-impact");
+            if (selectedFilters.includes(impact)) {
+              violation.style.display = "block";
+              visibleViolationsCount++;
+            } else {
+              violation.style.display = "none";
+            }
+          });
+          section.querySelector(".violation-count").textContent =
+            visibleViolationsCount;
+          section.style.display = visibleViolationsCount > 0 ? "block" : "none";
+        });
+      }
+
+      function exportToCSVEnhanced() {
+        if (!fetchedData.length) {
+          console.error("No data to export.");
+          return;
+        }
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Overview\nReport Date:,Total Violations:\n";
+        const reportDate = new Date().toISOString();
+        const totalViolations = fetchedData.reduce(
+          (sum, page) => sum + page.totalViolations,
+          0
+        );
+        csvContent += `${reportDate},${totalViolations}\n\n`;
+        csvContent +=
+          "Page Summary\nURL,Relative Path,Total Violations,WCAG 2A,WCAG 2AA,WCAG 2.1A,WCAG 2.1AA\n";
+        fetchedData.forEach((page) => {
+          csvContent += `${page.url},${page.relativePath},${page.totalViolations},${page.wcagCompliance.wcag2a},${page.wcagCompliance.wcag2aa},${page.wcagCompliance.wcag21a},${page.wcagCompliance.wcag21aa}\n`;
+        });
+        csvContent += "\n\n";
+        csvContent +=
+          "Violation Details\nURL,Violation ID,Impact,Description,Help,Help URL,Tags,Element,HTML Snippet,Failure Summary,XPath\n";
+        fetchedData.forEach((page) => {
+          page.violations.forEach((violation) => {
+            violation.nodes.forEach((node) => {
+              const formattedHtmlSnippet = node.html
+                .replace(/(?:\r\n|\r|\n)/g, " ")
+                .replace(/"/g, '""');
+              csvContent += `${page.url},${violation.id},${violation.impact},"${
+                violation.description
+              }","${violation.help}",${
+                violation.helpUrl
+              },"${violation.tags.join("; ")}","${
+                node.target
+              }","${formattedHtmlSnippet}","${node.failureSummary || "N/A"}",${
+                node.xpath
+              }\n`;
+            });
+          });
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const downloadLink = document.createElement("a");
+        downloadLink.setAttribute("href", encodedUri);
+        downloadLink.setAttribute("download", "accessibility_results.csv");
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Accessibility Test Results</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #1e1e1e;
+        color: #e0e0e0;
+        margin: 0;
+        padding: 20px;
+      }
+      .container {
+        max-width: 1200px;
+        margin: auto;
+        padding: 20px;
+        background-color: #2c2c2c;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      .header {
+        font-size: 24px;
+        background-color: #333;
+        padding: 15px;
+        color: #fff;
+        border-radius: 5px;
+        margin-bottom: 20px;
+      }
+      .filter-title {
+        font-size: 18px;
+        color: #ddd;
+        margin-bottom: 10px;
+        padding: 0 15px;
+      }
+      .filter-controls {
+        background-color: #333;
+        padding: 10px;
+        border-radius: 5px;
+        display: flex;
+        gap: 30px;
+        margin-bottom: 20px;
+      }
+      .filter-controls label {
+        color: #fff;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .filter-controls input[type="checkbox"] {
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #8ab4f8;
+        border-radius: 4px;
+        outline: none;
+        cursor: pointer;
+        background-color: #333;
+        transition: background-color 0.3s, border-color 0.3s;
+      }
+      .filter-controls input[type="checkbox"]:checked {
+        background-color: #8ab4f8;
+        border-color: #8ab4f8;
+      }
+      .filter-controls input[type="checkbox"]:checked::before {
+        content: "\2713";
+        display: block;
+        text-align: center;
+        color: white;
+        font-weight: bold;
+      }
+      .details-summary {
+        background-color: #333;
+        padding: 15px;
+        border-radius: 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .details-summary div {
+        background-color: #444;
+        padding: 8px 12px;
+        border-radius: 5px;
+      }
+      .issues-summary {
+        background-color: #333;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+      }
+      .section {
+        background-color: #333;
+        border-radius: 5px;
+        margin-bottom: 10px;
+      }
+      .section-title {
+        font-size: 18px;
+        font-weight: bold;
+        background-color: #444;
+        padding: 12px;
+        border-radius: 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+      }
+      .section-title span,
+      .violation-header,
+      .node {
+        font-size: 16px;
+        color: #ccc;
+      }
+      .section-title a {
+        color: #8ab4f8;
+        text-decoration: none;
+        transition: color 0.3s;
+      }
+      .section-title a:hover,
+      .violation a {
+        color: #59a6e4;
+      }
+      .content {
+        display: none;
+        padding: 10px;
+        background-color: #2c2c2c;
+        border-radius: 0 0 5px 5px;
+      }
+      .violation {
+        margin-bottom: 20px;
+        background-color: #444;
+        padding: 10px;
+        border-radius: 5px;
+      }
+      .violation-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 16px;
+        color: #eee;
+        margin-bottom: 10px;
+      }
+      .violation div,
+      .node {
+        margin-bottom: 6px;
+      }
+      .node {
+        margin-left: 20px;
+        margin-bottom: 10px;
+        background-color: #555;
+        padding: 10px;
+        border-radius: 5px;
+        color: #ddd;
+      }
+      .footer {
+        margin-top: 30px;
+        padding: 15px;
+        background-color: #333;
+        border-radius: 5px;
+        text-align: right;
+      }
+      .button-container .button {
+        background-color: #555;
+        color: #fff;
+        padding: 8px 15px;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        margin-left: 10px;
+        transition: background-color 0.3s;
+      }
+      .button-container .button:hover {
+        background-color: #777;
+      }
+      .code-block {
+        overflow-x: auto;
+        border-radius: 5px;
+        background-color: #666;
+        padding: 5px;
+        text-wrap: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">Accessibility Test Results</div>
+      <div class="filter-title">Filter Issues By Severity:</div>
+      <div class="filter-controls">
+        <label
+          ><input
+            type="checkbox"
+            class="issue-filter"
+            value="critical"
+            checked
+          />
+          Critical</label
+        >
+        <label
+          ><input
+            type="checkbox"
+            class="issue-filter"
+            value="serious"
+            checked
+          />
+          Serious</label
+        >
+        <label
+          ><input
+            type="checkbox"
+            class="issue-filter"
+            value="moderate"
+            checked
+          />
+          Moderate/Mild</label
+        >
+        <label
+          ><input type="checkbox" class="issue-filter" value="minor" checked />
+          Minor</label
+        >
+      </div>
+      <div class="details-summary">
+        <div>Test URL: <span id="test-url"></span></div>
+        <div>Total Issues: <span id="total-issues-count"></span></div>
+      </div>
+      <div class="issues-summary" id="issues-summary">
+        <!-- Summary of issues will be dynamically populated here -->
+      </div>
+      <div id="results">
+        <!-- Detailed results will be added here by JavaScript -->
+      </div>
+      <div class="footer">
+        <div class="button-container">
+          <button class="button" onclick="exportToCSVEnhanced()">Export</button>
+        </div>
+      </div>
+    </div>
+    <script>
+      let fetchedData = [];
+      document.addEventListener("DOMContentLoaded", () => {
+        displaySummary(fetchedData);
+        displayResults(fetchedData);
+        document
+          .querySelectorAll(".issue-filter")
+          .forEach((filter) => filter.addEventListener("change", applyFilters));
+      });
+
+      function displaySummary(data) {
+        const testUrl = data.length > 0 ? data[0].url : "N/A";
+        const totalIssues = data.reduce(
+          (sum, page) => sum + page.totalViolations,
+          0
+        );
+        document.getElementById("test-url").textContent = testUrl;
+        document.getElementById("total-issues-count").textContent = totalIssues;
+        const impactSummary = data.reduce(
+          (summary, page) => {
+            summary.critical += page.ruleImpact.critical || 0;
+            summary.serious += page.ruleImpact.serious || 0;
+            summary.moderate += page.ruleImpact.moderate || 0;
+            summary.minor += page.ruleImpact.minor || 0;
+            return summary;
+          },
+          { critical: 0, serious: 0, moderate: 0, minor: 0 }
+        );
+        const issuesSummaryContainer =
+          document.getElementById("issues-summary");
+        issuesSummaryContainer.innerHTML = `
+        <div>Critical Issues: ${impactSummary.critical}</div>
+        <div>Serious Issues: ${impactSummary.serious}</div>
+        <div>Moderate/Mild Issues: ${impactSummary.moderate}</div>
+        <div>Minor Issues: ${impactSummary.minor}</div>
+    `;
+      }
+
+      function toggleContent(event) {
+        const content = event.currentTarget.nextElementSibling;
+        content.style.display =
+          content.style.display === "none" ? "block" : "none";
+      }
+
+      function displayResults(data) {
+        const resultsContainer = document.getElementById("results");
+        resultsContainer.innerHTML = "";
+        data.forEach((page, pageIndex) => {
+          const section = document.createElement("div");
+          section.className = "section";
+          const header = document.createElement("div");
+          header.className = "section-title";
+          header.addEventListener("click", toggleContent);
+          header.innerHTML = `<span>${pageIndex + 1}.</span> <a href="${
+            page.url
+          }" target="_blank">${
+            page.url
+          }</a> <span> <span class="violation-count">${
+            page.totalViolations
+          }</span> Violations</span>`;
+          section.appendChild(header);
+          const content = document.createElement("div");
+          content.className = "content";
+          page.violations.forEach((violation) => {
+            const violationDiv = document.createElement("div");
+            violationDiv.className = "violation";
+            violationDiv.setAttribute("data-impact", violation.impact);
+            const violationHeader = document.createElement("div");
+            violationHeader.className = "violation-header";
+            violationHeader.innerHTML = `<strong>Violation:</strong> ${
+              violation.id
+            } (${violation.impact || "impact not specified"})`;
+            violationDiv.appendChild(violationHeader);
+            violationDiv.innerHTML += `
+                <div><strong>Description:</strong> ${
+                  violation.description
+                }</div>
+                <div><strong>Help:</strong> ${violation.help}</div>
+                <div><strong>Help URL:</strong> <a href="${
+                  violation.helpUrl
+                }" target="_blank">${violation.helpUrl}</a></div>
+                <div><strong>WCAG Reference:</strong> ${
+                  violation.tags ? violation.tags.join(", ") : "N/A"
+                }</div>`;
+            violation.nodes.forEach((node) => {
+              const nodeDiv = document.createElement("div");
+              nodeDiv.className = "node";
+              nodeDiv.innerHTML = `
+                    <div>Element: ${node.target}</div>
+                    <div>HTML snippet: <pre class="code-block">${
+                      node.html
+                    }</pre></div>
+                    <div>Failure Summary: ${node.failureSummary || "N/A"}</div>
+                    <div>XPath: ${node.xpath || "N/A"}</div>`;
+              violationDiv.appendChild(nodeDiv);
+            });
+            content.appendChild(violationDiv);
+          });
+          section.appendChild(content);
+          resultsContainer.appendChild(section);
+        });
+        applyFilters();
+      }
+
+      function applyFilters() {
+        const selectedFilters = Array.from(
+          document.querySelectorAll(".issue-filter:checked")
+        ).map((filter) => filter.value);
+        const resultsContainer = document.getElementById("results");
+        const sections = resultsContainer.getElementsByClassName("section");
+        Array.from(sections).forEach((section) => {
+          const violations = section.getElementsByClassName("violation");
+          let visibleViolationsCount = 0;
+          Array.from(violations).forEach((violation) => {
+            const impact = violation.getAttribute("data-impact");
+            if (selectedFilters.includes(impact)) {
+              violation.style.display = "block";
+              visibleViolationsCount++;
+            } else {
+              violation.style.display = "none";
+            }
+          });
+          section.querySelector(".violation-count").textContent =
+            visibleViolationsCount;
+          section.style.display = visibleViolationsCount > 0 ? "block" : "none";
+        });
+      }
+
+      function exportToCSVEnhanced() {
+        if (!fetchedData.length) {
+          console.error("No data to export.");
+          return;
+        }
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Overview\nReport Date:,Total Violations:\n";
+        const reportDate = new Date().toISOString();
+        const totalViolations = fetchedData.reduce(
+          (sum, page) => sum + page.totalViolations,
+          0
+        );
+        csvContent += `${reportDate},${totalViolations}\n\n`;
+        csvContent +=
+          "Page Summary\nURL,Relative Path,Total Violations,WCAG 2A,WCAG 2AA,WCAG 2.1A,WCAG 2.1AA\n";
+        fetchedData.forEach((page) => {
+          csvContent += `${page.url},${page.relativePath},${page.totalViolations},${page.wcagCompliance.wcag2a},${page.wcagCompliance.wcag2aa},${page.wcagCompliance.wcag21a},${page.wcagCompliance.wcag21aa}\n`;
+        });
+        csvContent += "\n\n";
+        csvContent +=
+          "Violation Details\nURL,Violation ID,Impact,Description,Help,Help URL,Tags,Element,HTML Snippet,Failure Summary,XPath\n";
+        fetchedData.forEach((page) => {
+          page.violations.forEach((violation) => {
+            violation.nodes.forEach((node) => {
+              const formattedHtmlSnippet = node.html
+                .replace(/(?:\r\n|\r|\n)/g, " ")
+                .replace(/"/g, '""');
+              csvContent += `${page.url},${violation.id},${violation.impact},"${
+                violation.description
+              }","${violation.help}",${
+                violation.helpUrl
+              },"${violation.tags.join("; ")}","${
+                node.target
+              }","${formattedHtmlSnippet}","${node.failureSummary || "N/A"}",${
+                node.xpath
+              }\n`;
+            });
+          });
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const downloadLink = document.createElement("a");
+        downloadLink.setAttribute("href", encodedUri);
+        downloadLink.setAttribute("download", "accessibility_results.csv");
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+      }
+    </script>
+  </body>
+</html>

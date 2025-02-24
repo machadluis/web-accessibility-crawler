@@ -2,11 +2,15 @@
   "name": "web-accessibility-crawler",
   "version": "1.1.1",
   "description": "A web accessibility testing crawler using Puppeteer and Axe.",
+  "type": "module",
   "main": "src/index.js",
   "scripts": {
     "postinstall": "node postinstall.js",
     "preuninstall": "node preuninstall.js",
-    "run-accessibility-test": "node src/index.js"
+    "run-accessibility-test": "node dist/bundle.js",
+    "build": "rollup -c",
+    "test": "vitest",
+    "test:accessibility": "node node_modules/web-accessibility-crawler/src/index.js"
   },
   "keywords": [
     "accessibility",
@@ -20,7 +24,8 @@
   "license": "MIT",
   "dependencies": {
     "@axe-core/puppeteer": "^4.10.0",
-    "puppeteer": "^23.1.1"
+    "puppeteer": "^23.1.1",
+    "xml2js": "^0.6.2"
   },
   "repository": {
     "type": "git",
@@ -29,5 +34,12 @@
   "bugs": {
     "url": "https://github.com/machadluis/web-accessibility-crawler/issues"
   },
-  "homepage": "https://github.com/machadluis/web-accessibility-crawler#readme"
+  "homepage": "https://github.com/machadluis/web-accessibility-crawler#readme",
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.1",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^15.3.0",
+    "rollup": "^4.26.0",
+    "vitest": "^3.0.6"
+  }
 }
