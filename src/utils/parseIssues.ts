@@ -61,7 +61,7 @@ export default (violations: axe.AxeResults['violations'], pageUrl: string, relat
         target: node.target.join(", "),
         html: escapeHTML(node.html),
         failureSummary: node.failureSummary,
-        xpath: node.xpath ? node.xpath.join(", ") : "N/A",
+        xpath: node.xpath?.join(", "),
       })),
     });
   });
