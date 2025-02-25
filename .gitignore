@@ -1,5 +1,10 @@
 node_modules
-package-lock.json
 .git
 *.tgz
 .DS_Store
+
+// output
+accessibility-results/*
+
+// vitest
+coverage/*

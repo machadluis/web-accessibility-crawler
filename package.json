@@ -1,12 +1,17 @@
 {
   "name": "web-accessibility-crawler",
-  "version": "1.1.1",
+  "version": "2.0.0",
   "description": "A web accessibility testing crawler using Puppeteer and Axe.",
-  "main": "src/index.js",
+  "main": "dist/index.js",
+  "type": "module",
   "scripts": {
     "postinstall": "node postinstall.js",
     "preuninstall": "node preuninstall.js",
-    "run-accessibility-test": "node src/index.js"
+    "run-accessibility-test": "tsx src/index.ts",
+
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage",
+    "test": "vitest"
   },
   "keywords": [
     "accessibility",
@@ -23,7 +28,10 @@
     "puppeteer": "^23.1.1"
   },
   "devDependencies": {
-    "tsx": "^4.19.3"
+    "@vitest/coverage-v8": "3.0.7",
+    "@vitest/ui": "^3.0.7",
+    "tsx": "^4.19.3",
+    "vitest": "^3.0.7"
   },
   "repository": {
     "type": "git",
