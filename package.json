@@ -22,6 +22,9 @@
     "@axe-core/puppeteer": "^4.10.0",
     "puppeteer": "^23.1.1"
   },
+  "devDependencies": {
+    "tsx": "^4.19.3"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/machadluis/web-accessibility-crawler.git"

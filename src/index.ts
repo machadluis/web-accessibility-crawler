@@ -1,40 +1,26 @@
-const puppeteer = require("puppeteer");
-const { AxePuppeteer } = require("@axe-core/puppeteer");
-const fs = require("fs");
-const path = require("path");
+import puppeteer, { Browser } from "puppeteer";
+import { AxePuppeteer } from "@axe-core/puppeteer";
+import fs from "fs";
+import path from "path";
+import axe from "axe-core";
+
+import { normalizeUrl, escapeHtml } from "./utils/index";
+
+const TOTAL_CRITERIA = 55;
 
 const configFilePath = path.resolve(
-  process.env.npm_config_local_prefix,
+  import.meta.dirname,
+  '..',
   "webAccessibility-config.json"
 );
 const outputDir = path.resolve(
-  process.env.npm_config_local_prefix,
+  import.meta.dirname,
+  '..',
   "accessibility-results"
 );
 const outputPath = path.join(outputDir, "accessibility-results.json");
 
-const escapeHtml = (unsafe) => {
-  return unsafe
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-};
-
-const normalizeUrl = (link, baseUrl) => {
-  try {
-    const url = new URL(link, baseUrl);
-    url.search = "";
-    url.hash = "";
-    return url.href;
-  } catch (error) {
-    console.error("Error normalizing URL:", link);
-    return null;
-  }
-};
-
-const crawl = async (baseUrl, maxPagesToVisit = Infinity) => {
+const crawl = async (baseUrl: string, maxPagesToVisit = Infinity) => {
   const visited = new Set();
   const toVisit = [baseUrl];
   const browser = await puppeteer.launch({ headless: true });
@@ -47,18 +33,17 @@ const crawl = async (baseUrl, maxPagesToVisit = Infinity) => {
 
       try {
         console.log(`Currently visiting: ${url}`);
-        await page.goto(url, { waitUntil: "networkidle0", timeout: 30000 });
+        await page.goto(url!, { waitUntil: "networkidle0", timeout: 30000 });
 
         const links = await page.evaluate(() =>
-          Array.from(document.querySelectorAll("a[href]"))
-            .map((a) => a.getAttribute("href"))
+          Array.from(document.querySelectorAll("a[href]"), (a) => a.getAttribute("href"))
             .filter(
               (href) =>
                 href && !href.startsWith("javascript:") && !href.startsWith("#")
             )
         );
 
-        links.forEach((link) => {
+        links.filter(link => link !== null).forEach((link) => {
           const normalizedUrl = normalizeUrl(link, baseUrl);
           if (
             normalizedUrl &&
@@ -69,7 +54,9 @@ const crawl = async (baseUrl, maxPagesToVisit = Infinity) => {
           }
         });
       } catch (error) {
-        console.error("Error fetching URL:", url, error.message);
+        if (error instanceof Error) {
+          console.error("Error fetching URL:", url, error.message);
+        }
       }
       await page.close();
     }
@@ -79,16 +66,35 @@ const crawl = async (baseUrl, maxPagesToVisit = Infinity) => {
   return Array.from(visited);
 };
 
-const logAccessibilityIssues = async (results, pageUrl, relativePath) => {
-  const totalCriteria = 55; // WCAG 2.0 A/AA + WCAG 2.1 A/AA criteria
+interface ViolationData extends Partial<axe.AxeResults> {
+  relativePath: string;
+  totalViolations: number;
+  wcagCompliance: {
+    wcag2a: number;
+    wcag2aa: number;
+    wcag21a: number;
+    wcag21aa: number;
+  };
+  ruleImpact: {
+    minor: number;
+    moderate: number;
+    serious: number;
+    critical: number;
+  };
+  compliancePercentage: string;
+  totalRequirements: number;
+}
 
-  const violationsData = {
+const logIssues = async (results: axe.AxeResults, pageUrl: string, relativePath: string) => {
+  const violationsData: ViolationData = {
     url: pageUrl,
     relativePath: relativePath,
     totalViolations: results.violations.length,
     wcagCompliance: { wcag2a: 0, wcag2aa: 0, wcag21a: 0, wcag21aa: 0 },
     ruleImpact: { minor: 0, moderate: 0, serious: 0, critical: 0 },
     violations: [],
+    compliancePercentage: "0",
+    totalRequirements: TOTAL_CRITERIA,
   };
 
   results.violations.forEach((violation) => {
@@ -98,17 +104,18 @@ const logAccessibilityIssues = async (results, pageUrl, relativePath) => {
       }
     });
 
-    if (violationsData.ruleImpact.hasOwnProperty(violation.impact)) {
+    if (violation.impact && violationsData.ruleImpact.hasOwnProperty(violation.impact)) {
       violationsData.ruleImpact[violation.impact] += 1;
     }
 
-    violationsData.violations.push({
+    violationsData.violations!.push({
       id: violation.id,
       impact: violation.impact,
       description: violation.description,
       help: violation.help,
       helpUrl: violation.helpUrl,
       tags: violation.tags,
+      // @ts-ignore
       nodes: violation.nodes.map((node) => ({
         target: node.target.join(", "),
         html: escapeHtml(node.html),
@@ -119,10 +126,9 @@ const logAccessibilityIssues = async (results, pageUrl, relativePath) => {
   });
 
   const compliancePercentage =
-    ((totalCriteria - violationsData.totalViolations) / totalCriteria) * 100;
+    ((TOTAL_CRITERIA - violationsData.totalViolations) / TOTAL_CRITERIA) * 100;
 
   violationsData.compliancePercentage = compliancePercentage.toFixed(2);
-  violationsData.totalRequirements = totalCriteria;
 
   return violationsData;
 };
@@ -159,7 +165,7 @@ const logAccessibilityIssues = async (results, pageUrl, relativePath) => {
     urlsToVisit = await crawl(baseUrl, maxPagesToVisit);
   }
 
-  let browser;
+  let browser: Browser;
   try {
     browser = await puppeteer.launch({ headless: true });
 
@@ -180,7 +186,7 @@ const logAccessibilityIssues = async (results, pageUrl, relativePath) => {
         await page.goto(currentUrl, { waitUntil: "networkidle0" });
 
         const results = await new AxePuppeteer(page).analyze();
-        const violationsData = await logAccessibilityIssues(
+        const violationsData = await logIssues(
           results,
           currentUrl,
           relativePath
@@ -204,6 +210,8 @@ const logAccessibilityIssues = async (results, pageUrl, relativePath) => {
   } catch (error) {
     console.error("Error during accessibility test:", error);
   } finally {
-    if (browser) await browser.close();
+    if (browser!) {
+       await browser?.close()
+    };
   }
 })();
