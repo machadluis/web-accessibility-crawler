@@ -63,10 +63,10 @@ const crawl = async (baseUrl: string, maxPagesToVisit = Infinity) => {
   return Array.from(visited);
 };
 
-export const main = async () => {
+(async () => {
   if (!fs.existsSync(configFilePath)) {
     console.error(`Configuration file not found at ${configFilePath}`);
-    throw new Error("Configuration file not found");
+    process.exit(1);
   }
 
   const config = JSON.parse(fs.readFileSync(configFilePath, "utf8"));
@@ -75,7 +75,7 @@ export const main = async () => {
 
   if (!baseUrl || baseUrl.trim() === "") {
     console.error("Error: baseUrl is not defined in the configuration file.");
-    throw new Error("Base URL is not defined");
+    process.exit(1);
   }
 
   let urlsToVisit: string[];
@@ -146,11 +146,4 @@ export const main = async () => {
       await browser?.close();
     }
   }
-};
-
-if (process.env.NODE_ENV !== "test") {
-  main().catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
-}
+})();
