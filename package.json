@@ -8,10 +8,10 @@
     "postinstall": "node postinstall.js",
     "preuninstall": "node preuninstall.js",
     "run-accessibility-test": "tsx src/index.ts",
-
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage",
-    "test": "vitest"
+    "test": "vitest",
+    "test:accessibility": "npx tsx node_modules/web-accessibility-crawler/src/index.ts"
   },
   "keywords": [
     "accessibility",

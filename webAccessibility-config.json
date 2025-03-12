@@ -1,9 +1,0 @@
-{
-  "baseUrl": "https://www.kik.de",
-  "relativePaths": [
-    "/",
-    "/c/damen",
-    "/c/herren"
-  ],
-  "maxPagesToVisit": 50
-}

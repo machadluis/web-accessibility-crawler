@@ -1,5 +1,8 @@
 node_modules
 package-lock.json
+yarn.lock
+webAccessibility-config.json
+src/**/*.test.ts
 .git
 .github
 *.tgz

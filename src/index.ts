@@ -5,17 +5,11 @@ import path from "path";
 
 import { normalizeUrl, parseIssues } from "./utils/index";
 
-
 const configFilePath = path.resolve(
-  import.meta.dirname,
-  '..',
+  process.cwd(),
   "webAccessibility-config.json"
 );
-const outputDir = path.resolve(
-  import.meta.dirname,
-  '..',
-  "accessibility-results"
-);
+const outputDir = path.resolve(process.cwd(), "accessibility-results");
 const outputPath = path.join(outputDir, "accessibility-results.json");
 
 const crawl = async (baseUrl: string, maxPagesToVisit = Infinity) => {
@@ -37,13 +31,16 @@ const crawl = async (baseUrl: string, maxPagesToVisit = Infinity) => {
       await page.goto(url!, { waitUntil: "networkidle0", timeout: 30000 });
 
       const links = await page.evaluate(() =>
-        Array
-          .from(document.querySelectorAll("a[href]"), (a) => a.getAttribute("href"))
-          .filter((href) => href && !href.startsWith("javascript:") && !href.startsWith("#"))
+        Array.from(document.querySelectorAll("a[href]"), (a) =>
+          a.getAttribute("href")
+        ).filter(
+          (href) =>
+            href && !href.startsWith("javascript:") && !href.startsWith("#")
+        )
       );
 
       links
-        .filter(link => link !== null)
+        .filter((link) => link !== null)
         .forEach((link) => {
           const normalizedUrl = normalizeUrl(link, baseUrl);
           if (
@@ -66,10 +63,10 @@ const crawl = async (baseUrl: string, maxPagesToVisit = Infinity) => {
   return Array.from(visited);
 };
 
-(async () => {
+export const main = async () => {
   if (!fs.existsSync(configFilePath)) {
     console.error(`Configuration file not found at ${configFilePath}`);
-    process.exit(1);
+    throw new Error("Configuration file not found");
   }
 
   const config = JSON.parse(fs.readFileSync(configFilePath, "utf8"));
@@ -78,22 +75,26 @@ const crawl = async (baseUrl: string, maxPagesToVisit = Infinity) => {
 
   if (!baseUrl || baseUrl.trim() === "") {
     console.error("Error: baseUrl is not defined in the configuration file.");
-    process.exit(1);
+    throw new Error("Base URL is not defined");
   }
 
-  let urlsToVisit;
+  let urlsToVisit: string[];
   let existingUrls = new Set();
 
   if (fs.existsSync(outputPath)) {
     const existingData = JSON.parse(fs.readFileSync(outputPath, "utf8"));
-    existingData.forEach((entry) => existingUrls.add(entry.url));
+    existingData.forEach((entry: { url: string }) =>
+      existingUrls.add(entry.url)
+    );
   }
 
   if (config.relativePaths && config.relativePaths.length > 0) {
-    urlsToVisit = config.relativePaths.map((relativePath) => `${baseUrl}${relativePath}`);
+    urlsToVisit = config.relativePaths.map(
+      (relativePath: string) => `${baseUrl}${relativePath}`
+    );
   } else {
     console.log(`Crawling ${baseUrl} to discover paths...`);
-    urlsToVisit = await crawl(baseUrl, maxPagesToVisit);
+    urlsToVisit = ((await crawl(baseUrl, maxPagesToVisit)) as string[]) || [];
   }
 
   let browser: Browser;
@@ -117,7 +118,11 @@ const crawl = async (baseUrl: string, maxPagesToVisit = Infinity) => {
         await page.goto(currentUrl, { waitUntil: "networkidle0" });
 
         const results = await new AxePuppeteer(page).analyze();
-        const violationsData = parseIssues(results, currentUrl, relativePath);
+        const violationsData = parseIssues(
+          results.violations,
+          currentUrl,
+          relativePath
+        );
 
         if (violationsData) {
           allResults.push(violationsData);
@@ -138,7 +143,14 @@ const crawl = async (baseUrl: string, maxPagesToVisit = Infinity) => {
     console.error("Error during accessibility test:", error);
   } finally {
     if (browser!) {
-       await browser?.close()
-    };
+      await browser?.close();
+    }
   }
-})();
+};
+
+if (process.env.NODE_ENV !== "test") {
+  main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}
