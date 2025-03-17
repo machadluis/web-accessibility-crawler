@@ -1,6 +1,10 @@
-const fs = require("fs");
-const path = require("path");
-const { execSync } = require("child_process");
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import { execSync } from "child_process";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Define paths
 const projectRootPath = process.env.npm_config_local_prefix || process.cwd();
@@ -44,26 +48,12 @@ const checkInstallation = () => {
   }
 };
 
-const installDependencies = () => {
-  if (fs.existsSync(path.join(projectRootPath, "node_modules"))) {
-    console.log("Dependencies already installed.");
-  } else {
-    try {
-      console.log("Installing package dependencies...");
-      execSync("npm install", { stdio: "inherit", cwd: projectRootPath });
-      console.log("Dependencies installed.");
-    } catch (error) {
-      console.error("Error installing dependencies:", error);
-    }
-  }
-};
-
 const updatePackageJson = () => {
   if (fs.existsSync(packageJsonPath)) {
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
     packageJson.scripts = packageJson.scripts || {};
     packageJson.scripts["test:accessibility"] =
-      "node node_modules/web-accessibility-crawler/src/index.js";
+      "npx tsx node_modules/web-accessibility-crawler/src/index.ts";
     fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
     console.log(`Updated scripts in ${packageJsonPath}`);
   } else {
@@ -104,7 +94,7 @@ const installPuppeteerBrowser = () => {
     console.log("Ensuring Puppeteer browser is installed...");
     execSync("npx puppeteer install", {
       stdio: "inherit",
-      cwd: path.join(packageRootPath, "node_modules", "puppeteer"),
+      cwd: path.join(projectRootPath, "node_modules", "puppeteer"),
     });
     console.log("Puppeteer browser is installed.");
   } catch (error) {
@@ -114,7 +104,6 @@ const installPuppeteerBrowser = () => {
 
 try {
   checkInstallation();
-  installDependencies();
   updatePackageJson();
   createConfigFile();
   createAccessibilityResultsFolder();

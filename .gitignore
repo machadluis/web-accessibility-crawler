@@ -1,5 +1,13 @@
 node_modules
 package-lock.json
+yarn.lock
+webAccessibility-config.json
 .git
 *.tgz
 .DS_Store
+
+// output
+accessibility-results/*
+
+// vitest
+coverage/*
